@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secondo Form - Generatore Business Plan</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Progress bar aggiornata per il secondo step */
+        .progress-bar::after {
+            width: 28.56% !important; /* 2/7 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header del form -->
+        <h2><i class="fas fa-building-circle-check"></i> Dettagli Azienda</h2>
+        
+        <form id="formStep2">
+            <!-- Informazioni Aziendali -->
+            <fieldset>
+                <legend><i class="fas fa-info-circle"></i> Informazioni Aziendali</legend>
+                
+                <div class="form-group">
+                    <label for="nomeAzienda">
+                        <i class="fas fa-signature"></i> Nome dell'azienda <span class="required"></span>
+                    </label>
+                    <input type="text" 
+                           id="nomeAzienda" 
+                           name="nomeAzienda" 
+                           placeholder="Es: Innovation Tech S.r.l."
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descrizioneAzienda">
+                        <i class="fas fa-align-left"></i> Descrizione dell'azienda <span class="required"></span>
+                    </label>
+                    <textarea id="descrizioneAzienda" 
+                              name="descrizioneAzienda" 
+                              rows="4" 
+                              placeholder="Es: Hotel boutique nel centro storico, specializzato in ospitalità di lusso e servizi personalizzati per viaggiatori business e leisure..."
+                              required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="numeroDipendenti">
+                        <i class="fas fa-users"></i> Numero di dipendenti 
+                    </label>
+                    <input type="number" 
+                           id="numeroDipendenti" 
+                           name="numeroDipendenti" 
+                           placeholder="Es: 25"
+                           min="0" 
+                           required>
+                </div>
+            </fieldset>
+
+            <!-- Prodotto/Servizio -->
+            <fieldset>
+                <legend><i class="fas fa-box-open"></i> Tipo di Offerta</legend>
+                <p>Offrite un prodotto o un servizio?</p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="tipoOffertaProdotto" name="tipoOfferta" value="prodotto" required>
+                        <span><i class="fas fa-cube"></i> Prodotto</span>
+                    </label>
+                    <label>
+                        <input type="radio" id="tipoOffertaServizio" name="tipoOfferta" value="servizio">
+                        <span><i class="fas fa-concierge-bell"></i> Servizio</span>
+                    </label>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="modalitaRicezione">
+                        <i class="fas fa-truck"></i> Come può il cliente ricevere il vostro prodotto o servizio? <span class="required"></span>
+                    </label>
+                    <select id="modalitaRicezione" name="modalitaRicezione" required>
+                        <option value="">Seleziona una modalità...</option>
+                        <option value="online">💻 Online</option>
+                        <option value="fisica">🏪 Posizione fisica</option>
+                        <option value="online_fisica">🌐 Sia online che in sede fisica</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- Area Clienti -->
+            <fieldset>
+                <legend><i class="fas fa-map-marked-alt"></i> Area di Servizio</legend>
+                <div class="form-group">
+                    <label for="areaClienti">
+                        <i class="fas fa-globe-europe"></i> Dove servite i vostri clienti? <span class="required"></span>
+                    </label>
+                    <input type="text" 
+                           id="areaClienti" 
+                           name="areaClienti" 
+                           placeholder="Es: Milano e provincia / Lombardia / Italia settentrionale / Europa"
+                           required>
+                    <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> Specifica l'area geografica di operatività
+                    </small>
+                </div>
+            </fieldset>
+
+            <!-- Navigazione -->
+            <div class="form-navigation">
+                <button type="button" id="backButtonForm2" class="secondary">
+                    <i class="fas fa-arrow-left"></i> Indietro
+                </button>
+                <button type="submit" id="nextButtonForm2">
+                    Avanti <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
