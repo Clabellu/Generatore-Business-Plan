@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quinto Form - Analisi SWOT</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Progress bar aggiornata per il quinto step */
+        .progress-bar::after {
+            width: 71.4% !important; /* 5/7 */
+        }
+        
+        /* Stili specifici per l'analisi SWOT */
+        .swot-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .swot-fieldset {
+            border: 2px solid;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-top: 30px;
+        }
+        
+        .swot-fieldset:hover {
+            transform: translateY(0);
+        }
+        
+        /* Colori distintivi per ogni sezione SWOT */
+        .swot-strengths {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.05);
+        }
+        
+        .swot-strengths:hover {
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
+        }
+        
+        .swot-strengths legend {
+            color: #27ae60;
+        }
+        
+        .swot-weaknesses {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.05);
+        }
+        
+        .swot-weaknesses:hover {
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
+        }
+        
+        .swot-weaknesses legend {
+            color: #e74c3c;
+        }
+        
+        .swot-opportunities {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .swot-opportunities:hover {
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+        
+        .swot-opportunities legend {
+            color: #3498db;
+        }
+        
+        .swot-threats {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.05);
+        }
+        
+        .swot-threats:hover {
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.15);
+        }
+        
+        .swot-threats legend {
+            color: #f39c12;
+        }
+        
+        /* Input specifici per SWOT */
+        .swot-input {
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .swot-input input {
+            padding-left: 44px;
+            width: 100%;
+        }
+        
+        .swot-number {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .swot-strengths .swot-number {
+            background: #27ae60;
+        }
+        
+        .swot-weaknesses .swot-number {
+            background: #e74c3c;
+        }
+        
+        .swot-opportunities .swot-number {
+            background: #3498db;
+        }
+        
+        .swot-threats .swot-number {
+            background: #f39c12;
+        }
+        
+        /* Info box */
+        .swot-info {
+            background: var(--background-color);
+            border-left: 4px solid var(--accent-color);
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+        
+        .swot-info i {
+            color: var(--accent-color);
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header del form -->
+        <h2><i class="fas fa-chart-pie"></i> Analisi SWOT</h2>
+        
+        <div class="swot-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Suggerimento:</strong> L'analisi SWOT ti aiuta a identificare i fattori interni (Forze e Debolezze) ed esterni (Opportunità e Minacce) che influenzano il tuo business.
+        </div>
+        
+        <form id="formStep5">
+            <div class="swot-container">
+                <!-- Punti di Forza -->
+                <fieldset class="swot-fieldset swot-strengths">
+                    <legend>
+                        <i class="fas fa-muscle"></i> Punti di Forza (Strengths)
+                    </legend>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">1</span>
+                        <input type="text" 
+                               id="swotForza1" 
+                               name="swotForza1" 
+                               placeholder="Es: Team altamente qualificato (obbligatorio)"
+                               required>
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">2</span>
+                        <input type="text" 
+                               id="swotForza2" 
+                               name="swotForza2" 
+                               placeholder="Es: Tecnologia proprietaria innovativa">
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">3</span>
+                        <input type="text" 
+                               id="swotForza3" 
+                               name="swotForza3" 
+                               placeholder="Es: Forte presenza sul mercato locale">
+                    </div>
+                </fieldset>
+
+                <!-- Debolezze -->
+                <fieldset class="swot-fieldset swot-weaknesses">
+                    <legend>
+                        <i class="fas fa-exclamation-triangle"></i> Debolezze (Weaknesses)
+                    </legend>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">1</span>
+                        <input type="text" 
+                               id="swotDebolezza1" 
+                               name="swotDebolezza1" 
+                               placeholder="Es: Budget marketing limitato (obbligatorio)"
+                               required>
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">2</span>
+                        <input type="text" 
+                               id="swotDebolezza2" 
+                               name="swotDebolezza2" 
+                               placeholder="Es: Dipendenza da fornitori chiave">
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">3</span>
+                        <input type="text" 
+                               id="swotDebolezza3" 
+                               name="swotDebolezza3" 
+                               placeholder="Es: Processi non ancora ottimizzati">
+                    </div>
+                </fieldset>
+
+                <!-- Opportunità -->
+                <fieldset class="swot-fieldset swot-opportunities">
+                    <legend>
+                        <i class="fas fa-rocket"></i> Opportunità (Opportunities)
+                    </legend>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">1</span>
+                        <input type="text" 
+                               id="swotOpportunita1" 
+                               name="swotOpportunita1" 
+                               placeholder="Es: Crescita del mercato digitale (obbligatorio)"
+                               required>
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">2</span>
+                        <input type="text" 
+                               id="swotOpportunita2" 
+                               name="swotOpportunita2" 
+                               placeholder="Es: Nuove normative favorevoli">
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">3</span>
+                        <input type="text" 
+                               id="swotOpportunita3" 
+                               name="swotOpportunita3" 
+                               placeholder="Es: Partnership strategiche possibili">
+                    </div>
+                </fieldset>
+
+                <!-- Minacce -->
+                <fieldset class="swot-fieldset swot-threats">
+                    <legend>
+                        <i class="fas fa-shield-alt"></i> Minacce (Threats)
+                    </legend>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">1</span>
+                        <input type="text" 
+                               id="swotMinaccia1" 
+                               name="swotMinaccia1" 
+                               placeholder="Es: Concorrenza internazionale (obbligatorio)"
+                               required>
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">2</span>
+                        <input type="text" 
+                               id="swotMinaccia2" 
+                               name="swotMinaccia2" 
+                               placeholder="Es: Instabilità economica">
+                    </div>
+                    
+                    <div class="swot-input">
+                        <span class="swot-number">3</span>
+                        <input type="text" 
+                               id="swotMinaccia3" 
+                               name="swotMinaccia3" 
+                               placeholder="Es: Cambiamenti tecnologici rapidi">
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Navigazione -->
+            <div class="form-navigation">
+                <button type="button" id="backButtonForm5" class="secondary">
+                    <i class="fas fa-arrow-left"></i> Indietro
+                </button>
+                <button type="submit" id="nextButtonForm5">
+                    Avanti <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

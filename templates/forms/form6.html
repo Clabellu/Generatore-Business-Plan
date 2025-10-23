@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesto Form - Dettagli Investimenti</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Progress bar aggiornata per il sesto step */
+        .progress-bar::after {
+            width: 85.68% !important; /* 6/7 */
+        }
+        
+        /* Stili specifici per questo form */
+        .currency-selector {
+            margin-bottom: 30px;
+        }
+        
+        .currency-selector select {
+            font-size: 16px;
+            padding: 14px 16px;
+        }
+        
+        .investment-table {
+            margin-bottom: 30px;
+        }
+        
+        .investment-header {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr auto;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .investment-row {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr auto;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            padding: 10px;
+            background: var(--background-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .investment-row:hover {
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .investment-row .form-group {
+            margin-bottom: 0;
+        }
+        
+        .investment-row label {
+            display: none;
+        }
+        
+        .investment-number {
+            position: absolute;
+            left: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .investment-row-container {
+            position: relative;
+            padding-left: 35px;
+        }
+        
+        /* Pulsante rimuovi riga */
+        .remove-row-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            padding: 0;
+            line-height: 1;
+            min-width: 30px;
+            min-height: 30px;
+            flex-shrink: 0;
+        }
+        
+        .remove-row-btn:hover {
+            background: #ff3742;
+            transform: scale(1.1);
+        }
+        
+        .remove-row-btn:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Pulsante aggiungi riga */
+        .add-row-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .add-row-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-row-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .total-box {
+            background: var(--background-color);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .total-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .total-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--accent-color);
+        }
+        
+        .currency-symbol {
+            font-size: 24px;
+            margin-left: 5px;
+            color: var(--accent-color);
+        }
+        
+        /* Icone per gli input */
+        .investment-row input[type="text"] {
+            padding-left: 40px;
+        }
+        
+        .investment-row input[type="number"] {
+            padding-left: 40px;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .input-container {
+            position: relative;
+        }
+        
+        /* Helper text */
+        .helper-text {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 640px) {
+            .investment-header,
+            .investment-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .investment-row-container {
+                padding-left: 25px;
+            }
+            
+            .investment-number {
+                left: -25px;
+            }
+            
+            .remove-row-btn {
+                margin-top: 10px;
+                justify-self: center;
+            }
+        }
+
+        .nascosto {
+            display: none;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header del form -->
+        <h2><i class="fas fa-coins"></i> Dettagli Investimenti Iniziali</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px;">
+            Definisci il budget iniziale necessario per avviare la tua attività.
+        </p>
+        
+        <form id="formStep6">
+            <!-- Selezione Valuta -->
+            <fieldset class="currency-selector">
+                <legend><i class="fas fa-money-bill-wave"></i> Valuta di Riferimento</legend>
+                <div class="form-group">
+                    <label for="valutaInvestimenti">Scegli la valuta per gli investimenti:</label>
+                    <select id="valutaInvestimenti" name="valutaInvestimenti">
+                        <option value="">Seleziona una valuta...</option>
+                        <option value="EUR">🇪🇺 EUR (€) - Euro</option>
+                        <option value="USD">🇺🇸 USD ($) - Dollaro USA</option>
+                        <option value="GBP">🇬🇧 GBP (£) - Sterlina Britannica</option>
+                        <option value="JPY">🇯🇵 JPY (¥) - Yen Giapponese</option>
+                        <option value="CAD">🇨🇦 CAD (C$) - Dollaro Canadese</option>
+                        <option value="AUD">🇦🇺 AUD (A$) - Dollaro Australiano</option>
+                        <option value="CHF">🇨🇭 CHF (Fr) - Franco Svizzero</option>
+                        <option value="CNY">🇨🇳 CNY (¥) - Yuan Cinese</option>
+                        <option value="INR">🇮🇳 INR (₹) - Rupia Indiana</option>
+                        <option value="BRL">🇧🇷 BRL (R$) - Real Brasiliano</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- Tabella Investimenti -->
+            <fieldset class="investment-table">
+                <legend><i class="fas fa-list-check"></i> Dettaglio Spese di Investimento</legend>
+                <p class="helper-text" style="margin-bottom: 20px;">
+                    <i class="fas fa-info-circle"></i> Inserisci le voci di investimento. Se compili un campo, dovrai compilare anche l'altro.
+                </p>
+                
+                <div class="investment-header">
+                    <div><i class="fas fa-tag"></i> Oggetto dell'investimento</div>
+                    <div><i class="fas fa-euro-sign"></i> Importo</div>
+                    <div><i class="fas fa-cog"></i> Azioni</div>
+                </div>
+                
+                <!-- Container per le righe dinamiche -->
+                <div id="investmentRowsContainer">
+                    <!-- Riga 1 -->
+                    <div class="investment-row-container" data-row="1">
+                        <span class="investment-number">1</span>
+                        <div class="investment-row">
+                            <div class="form-group">
+                                <div class="input-container">
+                                    <i class="fas fa-desktop input-icon"></i>
+                                    <input type="text" 
+                                           id="investOggetto1" 
+                                           name="investOggetto1" 
+                                           placeholder="Es: Attrezzature e computer"
+                                           class="oggetto-input">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-container">
+                                    <i class="fas fa-calculator input-icon"></i>
+                                    <input type="number" 
+                                           id="investImporto1" 
+                                           name="investImporto1" 
+                                           placeholder="0.00" 
+                                           min="0" 
+                                           step="0.01"
+                                           class="importo-input">
+                                </div>
+                            </div>
+                            <button type="button" class="remove-row-btn" disabled title="Non puoi rimuovere la prima riga">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Riga 2 -->
+                    <div class="investment-row-container" data-row="2">
+                        <span class="investment-number">2</span>
+                        <div class="investment-row">
+                            <div class="form-group">
+                                <div class="input-container">
+                                    <i class="fas fa-file-contract input-icon"></i>
+                                    <input type="text" 
+                                           id="investOggetto2" 
+                                           name="investOggetto2" 
+                                           placeholder="Es: Licenze e software"
+                                           class="oggetto-input">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-container">
+                                    <i class="fas fa-calculator input-icon"></i>
+                                    <input type="number" 
+                                           id="investImporto2" 
+                                           name="investImporto2" 
+                                           placeholder="0.00" 
+                                           min="0" 
+                                           step="0.01"
+                                           class="importo-input">
+                                </div>
+                            </div>
+                            <button type="button" class="remove-row-btn" onclick="removeRow(2)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Riga 3 -->
+                    <div class="investment-row-container" data-row="3">
+                        <span class="investment-number">3</span>
+                        <div class="investment-row">
+                            <div class="form-group">
+                                <div class="input-container">
+                                    <i class="fas fa-bullhorn input-icon"></i>
+                                    <input type="text" 
+                                           id="investOggetto3" 
+                                           name="investOggetto3" 
+                                           placeholder="Es: Marketing e comunicazione"
+                                           class="oggetto-input">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-container">
+                                    <i class="fas fa-calculator input-icon"></i>
+                                    <input type="number" 
+                                           id="investImporto3" 
+                                           name="investImporto3" 
+                                           placeholder="0.00" 
+                                           min="0" 
+                                           step="0.01"
+                                           class="importo-input">
+                                </div>
+                            </div>
+                            <button type="button" class="remove-row-btn" onclick="removeRow(3)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pulsante Aggiungi Riga -->
+                <div class="add-row-container">
+                    <button type="button" id="addRowBtn" class="add-row-btn">
+                        <i class="fas fa-plus"></i>
+                        Aggiungi voce di investimento
+                    </button>
+                </div>
+            </fieldset>
+
+            <!-- Box Totale -->
+            <div class="total-box">
+                <div class="total-label">Investimento Iniziale Totale</div>
+                <div class="total-amount">
+                    <span id="sommaInvestimentiTotale">0.00</span>
+                    <span class="currency-symbol" id="valutaVisualizzata"></span>
+                </div>
+            </div>
+
+            <!-- Navigazione -->
+            <div class="form-navigation">
+                <button type="button" id="backButtonForm6" class="secondary">
+                    <i class="fas fa-arrow-left"></i> Indietro
+                </button>
+                <button type="submit" id="nextButtonForm6">
+                    Avanti <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Variabili globali
+        let nextRowNumber = 4; // Inizia da 4 perché abbiamo già 3 righe
+        const maxRows = 10; // Limite massimo di righe
+        
+        const valutaSelect = document.getElementById('valutaInvestimenti');
+        const totaleElement = document.getElementById('sommaInvestimentiTotale');
+        const valutaVisualizzata = document.getElementById('valutaVisualizzata');
+        const container = document.getElementById('investmentRowsContainer');
+        const addBtn = document.getElementById('addRowBtn');
+        
+        // Simboli valuta
+        const simboliValuta = {
+            'EUR': '€',
+            'USD': '$',
+            'GBP': '£',
+            'JPY': '¥',
+            'CAD': 'C$',
+            'AUD': 'A$',
+            'CHF': 'Fr',
+            'CNY': '¥',
+            'INR': '₹',
+            'BRL': 'R$'
+        };
+        
+        // Icone disponibili per le nuove righe
+        const iconeDisponibili = [
+            'fas fa-tools',
+            'fas fa-laptop',
+            'fas fa-paint-brush',
+            'fas fa-truck',
+            'fas fa-home',
+            'fas fa-lightbulb',
+            'fas fa-cogs',
+            'fas fa-chart-line',
+            'fas fa-users',
+            'fas fa-globe'
+        ];
+        
+        // Calcola totale
+        function calcolaTotale() {
+            let totale = 0;
+            const importiInputs = document.querySelectorAll('.importo-input');
+            importiInputs.forEach(input => {
+                totale += parseFloat(input.value) || 0;
+            });
+            
+            totaleElement.textContent = totale.toFixed(2)
+                .replace('.', ',') // Sostituisce il punto con la virgola
+                .replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+
+            document.querySelectorAll('.importo-input').forEach(input => {
+                input.removeEventListener('input', calcolaTotale);
+                input.addEventListener('input', calcolaTotale);
+            });
+        }
+        
+        
+        // Aggiorna simbolo valuta
+        function aggiornaValuta() {
+            const valuta = valutaSelect.value;
+            valutaVisualizzata.textContent = simboliValuta[valuta] || '';
+        }
+        
+        // Aggiorna numerazione righe
+        function aggiornaNumeriRighe() {
+            const righe = container.querySelectorAll('.investment-row-container');
+            righe.forEach((riga, index) => {
+                const numero = riga.querySelector('.investment-number');
+                numero.textContent = index + 1;
+                riga.setAttribute('data-row', index + 1);
+            });
+        }
+        
+        // Aggiunge una nuova riga
+        function addRow() {
+            const currentRows = container.querySelectorAll('.investment-row-container').length;
+            
+            if (currentRows >= maxRows) {
+                alert(`Puoi aggiungere massimo ${maxRows} voci di investimento.`);
+                return;
+            }
+            
+            const iconaRandomica = iconeDisponibili[Math.floor(Math.random() * iconeDisponibili.length)];
+            
+            const nuovaRiga = document.createElement('div');
+            nuovaRiga.className = 'investment-row-container';
+            nuovaRiga.setAttribute('data-row', nextRowNumber);
+            
+            nuovaRiga.innerHTML = `
+                <span class="investment-number">${nextRowNumber}</span>
+                <div class="investment-row">
+                    <div class="form-group">
+                        <div class="input-container">
+                            <i class="${iconaRandomica} input-icon"></i>
+                            <input type="text" 
+                                   id="investOggetto${nextRowNumber}" 
+                                   name="investOggetto${nextRowNumber}" 
+                                   placeholder="Descrivi l'investimento..."
+                                   class="oggetto-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-container">
+                            <i class="fas fa-calculator input-icon"></i>
+                            <input type="number" 
+                                   id="investImporto${nextRowNumber}" 
+                                   name="investImporto${nextRowNumber}" 
+                                   placeholder="0.00" 
+                                   min="0" 
+                                   step="0.01"
+                                   class="importo-input">
+                        </div>
+                    </div>
+                    <button type="button" class="remove-row-btn" onclick="removeRow(${nextRowNumber})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(nuovaRiga);
+            
+            applicaEventListeners(); // Riapplica gli event listeners agli input
+            
+            nextRowNumber++;
+            
+            // Aggiorna il pulsante se abbiamo raggiunto il limite
+            if (container.querySelectorAll('.investment-row-container').length >= maxRows) {
+                addBtn.style.display = 'none';
+            }
+            
+            // Focus sul nuovo campo oggetto
+            nuovaRiga.querySelector('.oggetto-input').focus();
+        }
+        
+        // Rimuove una riga
+        function removeRow(rowNumber) {
+            const riga = container.querySelector(`[data-row="${rowNumber}"]`);
+            if (riga) {
+                // Non permettere di rimuovere se è l'unica riga rimasta
+                const righeRimaste = container.querySelectorAll('.investment-row-container').length;
+                if (righeRimaste <= 1) {
+                    alert('Devi mantenere almeno una voce di investimento.');
+                    return;
+                }
+
+                const oggetto = riga.querySelector('.oggetto-input').value.trim();
+                const importo = riga.querySelector('.importo-input').value;
+
+                if (oggetto || importo) {
+                    if (!confirm('Questa voce contiene dati. Sei sicuro di volerla rimuovere?')) {
+                        return;
+                    }
+                }
+                
+                riga.remove();
+                calcolaTotale();
+                aggiornaNumeriRighe();
+                applicaEventListeners(); // Riapplica gli event listeners agli input
+                
+                // Mostra di nuovo il pulsante aggiungi se era nascosto
+                if (addBtn.style.display === 'none') {
+                    addBtn.style.display = 'flex';
+                }
+            }
+        }
+        
+        // Event listeners iniziali
+        document.addEventListener('DOMContentLoaded', function() {
+            applicaEventListeners();
+
+            valutaSelect.addEventListener('change', aggiornaValuta);
+            addBtn.addEventListener('click', addRow);
+
+            calcolaTotale(); // Calcola il totale iniziale
+        });
+
+        function applicaEventListeners() {
+            const importiInputs = document.querySelectorAll('.importo-input');
+            importiInputs.forEach(input => {
+                input.removeEventListener('input', calcolaTotale); // Rimuovi eventuali listener esistenti
+                input.addEventListener('input', calcolaTotale);
+            });
+        }
+        
+        // Validazione form aggiornata
+        document.getElementById('formStep6').addEventListener('submit', function(e) {
+            const righe = container.querySelectorAll('.investment-row-container');
+            
+            for (let riga of righe) {
+                const numero = riga.getAttribute('data-row');
+                const oggetto = document.getElementById(`investOggetto${numero}`).value.trim();
+                const importo = document.getElementById(`investImporto${numero}`).value;
+                
+                if ((oggetto && !importo) || (!oggetto && importo)) {
+                    e.preventDefault();
+                    alert(`Per l'investimento ${riga.querySelector('.investment-number').textContent}, devi compilare sia l'oggetto che l'importo.`);
+                    return;
+                }
+            }
+        });
+        
+        // Expose removeRow function globally
+        window.removeRow = removeRow;
+    </script>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

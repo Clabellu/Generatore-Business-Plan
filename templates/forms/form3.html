@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terzo Form - Dettagli Clienti</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Progress bar aggiornata per il terzo step */
+        .progress-bar::after {
+            width: 42.84% !important; /* 3/7 */
+        }
+        
+        /* Stili specifici per questo form */
+        .cliente-fieldset {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .cliente-fieldset.opzionale {
+            opacity: 0.8;
+        }
+        
+        .cliente-fieldset.opzionale:hover {
+            opacity: 1;
+        }
+        
+        .cliente-numero {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: var(--accent-color);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .reddito-icon {
+            margin-right: 8px;
+        }
+        
+        .badge-required {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .badge-optional {
+            display: inline-block;
+            background: var(--secondary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header del form -->
+        <h2><i class="fas fa-users-cog"></i> Dettagli Clienti Target</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px;">
+            Descrivi i tuoi segmenti di clientela. Il primo è obbligatorio, gli altri sono opzionali per affinare il tuo business plan.
+        </p>
+        
+        <form id="formStep3">
+            <!-- Cliente 1 -->
+            <fieldset class="cliente-fieldset">
+                <legend>
+                    <i class="fas fa-user-tie"></i> Cliente Principale
+                    <span class="badge-required">OBBLIGATORIO</span>
+                </legend>
+                <div class="cliente-numero">1</div>
+                
+                <div class="form-group">
+                    <label for="cliente1Descrizione">
+                        <i class="fas fa-id-card"></i> Descrizione del cliente <span class="required"></span>
+                    </label>
+                    <textarea id="cliente1Descrizione" 
+                              name="cliente1Descrizione" 
+                              rows="3" 
+                              placeholder="Es: Piccole e medie imprese del settore manifatturiero, con 10-50 dipendenti, che necessitano di soluzioni digitali per ottimizzare i processi produttivi..."
+                              required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cliente1Reddito">
+                        <i class="fas fa-coins"></i> Livello di reddito <span class="required"></span>
+                    </label>
+                    <select id="cliente1Reddito" name="cliente1Reddito" required>
+                        <option value="">Seleziona un livello...</option>
+                        <option value="basso">
+                            <span class="reddito-icon">💰</span> Basso reddito
+                        </option>
+                        <option value="medio">
+                            <span class="reddito-icon">💰💰</span> Medio reddito
+                        </option>
+                        <option value="alto">
+                            <span class="reddito-icon">💰💰💰</span> Alto reddito
+                        </option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- Cliente 2 -->
+            <fieldset class="cliente-fieldset opzionale">
+                <legend>
+                    <i class="fas fa-user-friends"></i> Cliente Secondario
+                    <span class="badge-optional">OPZIONALE</span>
+                </legend>
+                <div class="cliente-numero">2</div>
+                
+                <div class="form-group">
+                    <label for="cliente2Descrizione">
+                        <i class="fas fa-id-card"></i> Descrizione del cliente
+                    </label>
+                    <textarea id="cliente2Descrizione" 
+                              name="cliente2Descrizione" 
+                              rows="3" 
+                              placeholder="Es: Professionisti autonomi e freelancer del settore creativo, che lavorano da remoto e cercano strumenti per gestire progetti e clienti..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cliente2Reddito">
+                        <i class="fas fa-coins"></i> Livello di reddito
+                    </label>
+                    <select id="cliente2Reddito" name="cliente2Reddito">
+                        <option value="">Seleziona un livello (se applicabile)...</option>
+                        <option value="basso">💰 Basso reddito</option>
+                        <option value="medio">💰💰 Medio reddito</option>
+                        <option value="alto">💰💰💰 Alto reddito</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- Cliente 3 -->
+            <fieldset class="cliente-fieldset opzionale">
+                <legend>
+                    <i class="fas fa-users"></i> Cliente Terziario
+                    <span class="badge-optional">OPZIONALE</span>
+                </legend>
+                <div class="cliente-numero">3</div>
+                
+                <div class="form-group">
+                    <label for="cliente3Descrizione">
+                        <i class="fas fa-id-card"></i> Descrizione del cliente
+                    </label>
+                    <textarea id="cliente3Descrizione" 
+                              name="cliente3Descrizione" 
+                              rows="3" 
+                              placeholder="Es: Startup tecnologiche in fase di crescita, con team di 5-20 persone, che necessitano di soluzioni scalabili e flessibili..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cliente3Reddito">
+                        <i class="fas fa-coins"></i> Livello di reddito
+                    </label>
+                    <select id="cliente3Reddito" name="cliente3Reddito">
+                        <option value="">Seleziona un livello (se applicabile)...</option>
+                        <option value="basso">💰 Basso reddito</option>
+                        <option value="medio">💰💰 Medio reddito</option>
+                        <option value="alto">💰💰💰 Alto reddito</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- Navigazione -->
+            <div class="form-navigation">
+                <button type="button" id="backButtonForm3" class="secondary">
+                    <i class="fas fa-arrow-left"></i> Indietro
+                </button>
+                <button type="submit" id="nextButtonForm3">
+                    Avanti <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
