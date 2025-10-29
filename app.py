@@ -740,18 +740,20 @@ def handle_genera_business_plan():
     # 1. Controlla e ricevi i dati JSON dal frontend
     if not request.is_json:
         return jsonify({"status": "error", "message": "Richiesta non in formato JSON"}), 400
-    
+
     dati_completi_bp = request.get_json()
     if not dati_completi_bp:
         return jsonify({"status": "error", "message": "Nessun dato ricevuto"}), 400
-    
+
     if not anthropic_client:
         return jsonify({"status": "error", "message": "Client Anthropic non inizializzato."}), 500
 
-    print(">>> Avvio generazione business plan per sezioni...")
+    print(">>> Avvio generazione business plan per sezioni CON PROMPT CACHING...")
 
     # 2. Inizia il blocco try per gestire qualsiasi errore durante il processo
     try:
+        import json
+
         # 3. Definisci le variabili che serviranno nel ciclo
         sezioni_da_generare = ['Riassunto Esecutivo', 'Analisi della Situazione', 'Marketing', 'Operazioni', 'Gestione', 'Strategia di Crescita', 'Finanza', 'Rischio e Mitigazione']
         business_plan_completo = []
@@ -763,33 +765,96 @@ def handle_genera_business_plan():
         valuta_simbolo = valuta_scelta.split('(')[1].replace(')','') if '(' in valuta_scelta else valuta_scelta
         tabella_markdown = calcola_e_formatta_proiezioni(dati_finanziari, valuta_simbolo)
 
-        # 4. Esegui il ciclo per generare ogni sezione
+        # 4. PROMPT CACHING: Prepara le parti cachate che saranno riutilizzate
+        # Queste parti sono identiche per tutte le sezioni e possono essere cachate
+        istruzioni_base_cache = {
+            "type": "text",
+            "text": """Agisci come un consulente finanziario esperto con 20 anni di esperienza nel settore.
+
+IMPORTANTE: Scrivi ESCLUSIVAMENTE in forma narrativa e discorsiva. NON utilizzare mai elenchi numerati (1, 2, 3), elenchi puntati (-, •), o qualsiasi tipo di lista. Ogni concetto deve essere espresso attraverso paragrafi fluidi e ben collegati, come se stessi scrivendo un documento aziendale professionale in prosa.
+
+Basandoti esclusivamente sulle informazioni fornite dall'utente, crea contenuti professionali e convincenti. Non inventare dettagli non forniti, ma presenta in modo persuasivo e narrativo le informazioni già raccolte. Mantieni sempre un tono professionale ma accessibile, costruendo ogni paragrafo sul precedente per creare un flusso logico e persuasivo.""",
+            "cache_control": {"type": "ephemeral"}
+        }
+
+        dati_utente_cache = {
+            "type": "text",
+            "text": f"""--- DATI UTENTE COMPLETI (da usare come riferimento) ---
+
+{json.dumps(dati_completi_bp, indent=2, ensure_ascii=False)}
+
+--- TABELLA FINANZIARIA PRECALCOLATA ---
+
+{tabella_markdown}
+
+--- FINE DATI UTENTE ---""",
+            "cache_control": {"type": "ephemeral"}
+        }
+
+        # 5. Esegui il ciclo per generare ogni sezione
         for i, nome_sezione in enumerate(sezioni_da_generare):
             print(f">>> Generazione Sezione {i+1}/{len(sezioni_da_generare)}: '{nome_sezione}'...")
 
-            # Costruisci il prompt specifico per la sezione corrente
-            prompt_da_usare = costruisci_prompt_per_sezione(nome_sezione, dati_completi_bp, contesto_precedente, tabella_markdown)
-            
-            # Chiamata API a Claude per la sezione corrente
-            # Assicurati di usare il tuo model_id corretto
-            model_id = "claude-3-7-sonnet-20250219"  # Sostituisci con il tuo model_id se necessario
+            # Costruisci il blocco system con caching
+            system_blocks = [
+                istruzioni_base_cache,
+                dati_utente_cache
+            ]
+
+            # Aggiungi il contesto precedente (se esiste) al cache
+            if contesto_precedente:
+                system_blocks.append({
+                    "type": "text",
+                    "text": f"""--- CONTESTO (SEZIONI GIÀ SCRITTE, da usare per mantenere coerenza) ---
+
+{contesto_precedente}
+
+--- FINE CONTESTO ---
+
+IMPORTANTE: Assicurati che la sezione che stai per scrivere sia coerente con tutto il contenuto precedente. Usa la stessa terminologia, fai riferimento agli stessi dati aziendali e mantieni uno stile uniforme.""",
+                    "cache_control": {"type": "ephemeral"}
+                })
+
+            # Ottieni le istruzioni specifiche per questa sezione (NON cachate, cambiano)
+            istruzione_sezione = ottieni_istruzioni_per_sezione(nome_sezione, tabella_markdown)
+
+            # Chiamata API a Claude CON PROMPT CACHING
+            model_id = "claude-3-7-sonnet-20250219"
+
+            print(f"    → Invio richiesta con {len(system_blocks)} blocchi system cachati...")
+
             response = anthropic_client.messages.create(
                 model=model_id,
                 max_tokens=4000,
-                messages=[{"role": "user", "content": prompt_da_usare}]
+                system=system_blocks,  # ← Blocchi cachati!
+                messages=[{
+                    "role": "user",
+                    "content": istruzione_sezione  # ← Solo le istruzioni specifiche
+                }]
             )
+
+            # Log dell'uso della cache (utile per debug)
+            usage = response.usage
+            if hasattr(usage, 'cache_creation_input_tokens'):
+                print(f"    → Cache created: {usage.cache_creation_input_tokens} tokens")
+            if hasattr(usage, 'cache_read_input_tokens'):
+                print(f"    → Cache read: {usage.cache_read_input_tokens} tokens (RISPARMIO!)")
+            if hasattr(usage, 'input_tokens'):
+                print(f"    → Input tokens: {usage.input_tokens} tokens")
+
             testo_sezione_generata = response.content[0].text.strip() if response.content else ""
-            
-                       
+
             sezione_formattata = f"## {nome_sezione}\n\n{testo_sezione_generata}\n\n"
             business_plan_completo.append(sezione_formattata)
             contesto_precedente += sezione_formattata
-            
+
             print(f">>> Sezione '{nome_sezione}' generata con successo.")
 
-        # 5. Prepara il risultato finale
+        # 6. Prepara il risultato finale
         testo_finale_completo = "".join(business_plan_completo)
         html_output = convert_text_to_html(testo_finale_completo)
+
+        print(">>> ✅ Business plan completo generato con PROMPT CACHING attivo!")
 
         return jsonify({
             "status": "success",
@@ -797,7 +862,7 @@ def handle_genera_business_plan():
             "business_plan_html": html_output
         })
 
-    # 6. Blocco except per catturare qualsiasi errore avvenuto nel blocco try
+    # 7. Blocco except per catturare qualsiasi errore avvenuto nel blocco try
     except Exception as e:
         print(f"ERRORE CRITICO durante la generazione a sezioni: {e}")
         # Includi un traceback per un debug più facile nel terminale
