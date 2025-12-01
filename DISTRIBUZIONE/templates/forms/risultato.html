@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Tuo Business Plan - Generatore Business Plan AI</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Progress bar completata al 100% con colore success */
+        .progress-bar::after {
+            width: 100% !important;
+            background: var(--success-color);
+        }
+        
+        /* Badge di completamento */
+        .completion-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        /* Container per il business plan generato */
+        #contenutoBusinessPlan {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            margin: 30px 0;
+            min-height: 400px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Mantieni gli stili esistenti per il contenuto generato dall'AI */
+        #contenutoBusinessPlan h2 {
+            color: var(--primary-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 8px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        #contenutoBusinessPlan h2:first-child {
+            margin-top: 0;
+        }
+        
+        #contenutoBusinessPlan p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+        
+        #contenutoBusinessPlan ul,
+        #contenutoBusinessPlan ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        #contenutoBusinessPlan li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        /* Tabella Finanziaria - Stile Professionale Standard */
+.financial-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+}
+
+/* Header della tabella */
+.financial-table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #333;
+}
+
+.financial-table thead th {
+    padding: 0.75rem 0.6rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.financial-table thead th:last-child {
+    border-right: none;
+}
+
+/* Allineamento colonne numeriche */
+.financial-table thead th:not(:first-child) {
+    text-align: right;
+}
+
+/* Corpo della tabella */
+.financial-table tbody tr {
+    border-bottom: 1px solid #eee;
+}
+
+.financial-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.financial-table tbody td {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    color: #333;
+    border-right: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.financial-table tbody td:last-child {
+    border-right: none;
+}
+
+/* Prima colonna (descrizioni) */
+.financial-table tbody td:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: #2c3e50;
+    padding-left: 0.8rem;
+}
+
+/* Colonne numeriche */
+.financial-table tbody td:not(:first-child) {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    padding-right: 0.8rem;
+}
+
+/* Righe con totali in grassetto */
+.financial-table tbody tr:has(td strong),
+.financial-table tbody td strong {
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Righe di separazione (vuote) */
+.financial-table tbody tr:has(td[colspan]) {
+    height: 0.3rem;
+}
+
+.financial-table tbody tr:has(td[colspan]) td {
+    padding: 0.15rem;
+    border: none;
+    background-color: transparent;
+}
+
+/* Indentazione per sotto-voci */
+.financial-table tbody td:first-child {
+    white-space: nowrap;
+}
+
+/* Stile per numeri negativi */
+.financial-table .negative {
+    color: #d32f2f;
+}
+
+/* Alternanza righe (zebra striping) */
+.financial-table tbody tr:nth-child(even) {
+    background-color: #fafbfc;
+}
+
+.financial-table tbody tr:nth-child(even):hover {
+    background-color: #f0f1f2;
+}
+
+/* Responsive per dispositivi mobili */
+@media (max-width: 768px) {
+    .financial-table {
+        font-size: 0.8rem;
+        margin: 1rem 0;
+    }
+    
+    .financial-table th,
+    .financial-table td {
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .financial-table thead th {
+        font-size: 0.75rem;
+    }
+}
+
+/* Compatibilità PDF - Rimuove effetti non supportati */
+@media print {
+    .financial-table {
+        border-collapse: collapse;
+        page-break-inside: avoid;
+    }
+    
+    .financial-table thead {
+        display: table-header-group;
+    }
+    
+    .financial-table tbody tr {
+        page-break-inside: avoid;
+    }
+}
+        
+        /* Loading state */
+        .loading-container {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        
+        /* Pulsanti risultato con stile coerente */
+        .pulsanti-risultato {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .pulsanti-risultato button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        #download-pdf-btn {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        #download-pdf-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        #download-docx-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        #download-docx-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        #tornaInizioBtn {
+            background: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--border-color);
+        }
+        
+        #tornaInizioBtn:hover {
+            border-color: var(--secondary-color);
+            background: var(--background-color);
+        }
+        
+        /* Info box per suggerimenti */
+        .info-box {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .info-box i {
+            color: var(--accent-color);
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            #contenutoBusinessPlan {
+                padding: 25px;
+            }
+            
+            .pulsanti-risultato {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .pulsanti-risultato button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div class="completion-badge">
+                <i class="fas fa-check-circle"></i>
+                Business Plan Completato!
+            </div>
+            <h1 style="margin-bottom: 10px;">
+                <i class="fas fa-file-alt"></i> Il Tuo Business Plan è Pronto
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 18px;">
+                Ecco il documento completo generato dall'intelligenza artificiale
+            </p>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <i class="fas fa-lightbulb"></i>
+            <strong>Suggerimento:</strong> Rivedi attentamente il business plan generato e personalizzalo secondo le tue esigenze specifiche prima di presentarlo a investitori o banche.
+        </div>
+
+        <!-- Contenuto Business Plan - NON MODIFICARE LA STRUTTURA INTERNA -->
+        <div id="contenutoBusinessPlan">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Generazione del business plan in corso...</p>
+            </div>
+        </div>
+
+        <!-- Pulsanti con icone -->
+        <div class="pulsanti-risultato">
+            <button id="download-pdf-btn">
+                <i class="fas fa-file-pdf"></i> Scarica PDF
+            </button>
+            <button id="download-docx-btn">
+                <i class="fas fa-file-word"></i> Scarica DOCX
+            </button>
+            <button id="tornaInizioBtn">
+                <i class="fas fa-plus-circle"></i> Crea un Altro Piano
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

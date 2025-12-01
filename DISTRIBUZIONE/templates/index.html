@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore Business Plan AI - Crea il tuo Business Plan in minuti</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Stili specifici per la landing page */
+        body {
+            background: linear-gradient(135deg, var(--background-color) 0%, rgba(52, 152, 219, 0.05) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Hero section */
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        /* Features grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-color);
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, rgba(52, 152, 219, 0.7) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .feature-icon i {
+            font-size: 24px;
+            color: white;
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .feature-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        
+        /* CTA section */
+        .cta-section {
+            text-align: center;
+            margin: 50px 0 30px;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+            border-radius: 16px;
+            position: relative;
+        }
+        
+        .cta-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+        
+        .cta-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+        
+        #startButton {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            font-size: 18px;
+            padding: 16px 40px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #startButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        #startButton i {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        #startButton:hover i {
+            transform: translateX(5px);
+        }
+        
+        /* Badge */
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(52, 152, 219, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+        
+        .ai-badge i {
+            font-size: 16px;
+        }
+        
+        /* Steps preview */
+        .steps-preview {
+            margin: 40px 0;
+            text-align: center;
+        }
+        
+        .steps-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+        }
+        
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .step-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 3px solid var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .steps-line {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .steps-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .steps-line {
+                display: none;
+            }
+        }
+        
+        /* Animated elements */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Trust indicators */
+        .trust-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .trust-items {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .trust-item i {
+            color: var(--success-color);
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            
+            
+            <h1>Il tuo Business Plan Professionale in Pochi Minuti</h1>
+            <p class="hero-subtitle">
+                Trasforma le tue idee in un business plan completo e professionale 
+                grazie all'intelligenza artificiale più avanzata
+            </p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="feature-title">Veloce e Intuitivo</h3>
+                <p class="feature-description">
+                    Solo 7 semplici step guidati per creare un business plan completo
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="feature-title">AI Avanzata</h3>
+                <p class="feature-description">
+                    Claude di Anthropic elabora i tuoi dati per risultati professionali
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 class="feature-title">Completo e Dettagliato</h3>
+                <p class="feature-description">
+                    Include analisi di mercato, proiezioni finanziarie e strategie
+                </p>
+            </div>
+        </div>
+
+        <!-- Steps Preview -->
+        <div class="steps-preview">
+            <h2 class="steps-title">Come Funziona</h2>
+            <div class="steps-container">
+                <div class="steps-line"></div>
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Info Base</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Azienda</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Clienti</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Prodotti</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">5</div>
+                    <div class="step-label">SWOT</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">6</div>
+                    <div class="step-label">Investimenti</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">7</div>
+                    <div class="step-label">Finanze</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2 class="cta-title">Pronto a Creare il Tuo Business Plan?</h2>
+            <p class="cta-description">
+                Unisciti a migliaia di imprenditori che hanno già trasformato le loro idee in realtà
+            </p>
+            <button id="startButton">
+                Inizia Ora Gratuitamente
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Trust Indicators -->
+        <div class="trust-section">
+            <div class="trust-items">
+                <div class="trust-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>100% Sicuro</span>
+                </div>
+                <div class="trust-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Dati Protetti</span>
+                </div>
+                <div class="trust-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Nessuna Registrazione</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Aggiungi event listener per il bottone start
+        document.getElementById('startButton').addEventListener('click', function() {
+            // Naviga al primo form
+            window.location.href = '/forms/form1';
+        });
+    </script>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

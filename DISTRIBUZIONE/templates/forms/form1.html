@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primo Form - Generatore Business Plan</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header del form -->
+        <h2><i class="fas fa-briefcase"></i> Informazioni Iniziali</h2>
+        
+        <form id="formStep1">
+            <!-- Domanda 1 -->
+            <fieldset>
+                <legend><i class="fas fa-building"></i> Stato dell'Azienda</legend>
+                <p>Si tratta di un'azienda esistente o in fase di sviluppo?</p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="aziendaEsistente" name="statoAzienda" value="esistente" required>
+                        <span><i class="fas fa-check-circle"></i> Azienda esistente</span>
+                    </label>
+                    <label>
+                        <input type="radio" id="aziendaDaCostituire" name="statoAzienda" value="da costituire">
+                        <span><i class="fas fa-seedling"></i> Azienda da costituire</span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <!-- Domanda 2 -->
+            <fieldset>
+                <legend><i class="fas fa-target"></i> Scopo del Business Plan</legend>
+                <p>A cosa servirà questo business plan?</p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="scopoInvestitori" name="scopoBP" value="investitori" required>
+                        <span><i class="fas fa-hand-holding-dollar"></i> Richiedere fondi agli investitori</span>
+                    </label>
+                    <label>
+                        <input type="radio" id="scopoBanche" name="scopoBP" value="banche">
+                        <span><i class="fas fa-university"></i> Richiedere fondi alle banche</span>
+                    </label>
+                    <label>
+                        <input type="radio" id="scopoBandi" name="scopoBP" value="bandi">
+                        <span><i class="fas fa-file-contract"></i> Richiedere fondi attraverso bandi</span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <!-- Domanda 3 -->
+            <fieldset>
+                <legend><i class="fas fa-language"></i> Lingua del Business Plan</legend>
+                <div class="form-group">
+                    <label for="linguaBP">In quale lingua vuoi generare il Business Plan? <span class="required"></span></label>
+                    <select id="linguaBP" name="linguaBP" required>
+                        <option value="">Seleziona una lingua...</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="en">🇬🇧 Inglese</option>
+                        <option value="es">🇪🇸 Spagnolo</option>
+                        <option value="fr">🇫🇷 Francese</option>
+                        <option value="de">🇩🇪 Tedesco</option>
+                        <option value="pt">🇵🇹 Portoghese</option>
+                        <option value="zh">🇨🇳 Cinese (Mandarino)</option>
+                        <option value="ja">🇯🇵 Giapponese</option>
+                        <option value="ru">🇷🇺 Russo</option>
+                        <option value="ar">🇸🇦 Arabo</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <!-- Navigazione -->
+            <div class="form-navigation">
+                <button type="submit" id="nextButtonForm1">
+                    Avanti <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

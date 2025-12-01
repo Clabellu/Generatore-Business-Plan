@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quarto Form - Dettagli Prodotti/Servizi</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Progress bar aggiornata per il quarto step */
+        .progress-bar::after {
+            width: 57.12% !important; /* 4/7 */
+        }
+        
+        /* Stili specifici per questo form */
+        .prodotto-fieldset {
+            position: relative;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .prodotto-numero {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: var(--accent-color);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .prodotto-opzionale {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            display: none;
+        }
+        
+        .prodotto-opzionale.visibile {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        #aggiungiProdottoBtn {
+            background: transparent;
+            border: 2px dashed var(--accent-color);
+            color: var(--accent-color);
+            width: 100%;
+            padding: 16px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        #aggiungiProdottoBtn:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-style: solid;
+            transform: none;
+        }
+        
+        #aggiungiProdottoBtn i {
+            margin-right: 8px;
+        }
+        
+        .counter-prodotti {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        
+        .badge-principale {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        /* Animazione per l'apparizione dei nuovi prodotti */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .prodotto-opzionale.visibile {
+            animation: slideIn 0.3s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header del form -->
+        <h2><i class="fas fa-box-archive"></i> Dettagli dei tuoi Prodotti o Servizi</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px;">
+            Descrivi i prodotti o servizi che offri. Puoi aggiungerne fino a 5.
+        </p>
+        
+        <form id="formStep4">
+            <!-- Prodotto 1 (Obbligatorio) -->
+            <fieldset id="prodottoServizio1" class="prodotto-fieldset">
+                <legend>
+                    <i class="fas fa-star"></i> Prodotto o Servizio Principale
+                    <span class="badge-principale">PRINCIPALE</span>
+                </legend>
+                <div class="prodotto-numero">1</div>
+                
+                <div class="form-group">
+                    <label for="prodotto1Nome">
+                        <i class="fas fa-tag"></i> Nome del prodotto o servizio <span class="required"></span>
+                    </label>
+                    <input type="text" 
+                           id="prodotto1Nome" 
+                           name="prodotto1Nome" 
+                           placeholder="Es: Consulenza strategica per PMI"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="prodotto1Descrizione">
+                        <i class="fas fa-align-left"></i> Descrizione <span class="required"></span>
+                    </label>
+                    <textarea id="prodotto1Descrizione" 
+                              name="prodotto1Descrizione" 
+                              rows="3" 
+                              placeholder="Es: Servizio di consulenza personalizzata per ottimizzare i processi aziendali, ridurre i costi e aumentare l'efficienza operativa..."
+                              required></textarea>
+                </div>
+            </fieldset>
+
+            <!-- Prodotto 2 -->
+            <div id="prodottoServizio2" class="prodotto-opzionale">
+                <fieldset class="prodotto-fieldset">
+                    <legend>
+                        <i class="fas fa-cube"></i> Prodotto o Servizio 2
+                    </legend>
+                    <div class="prodotto-numero">2</div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto2Nome">
+                            <i class="fas fa-tag"></i> Nome del prodotto o servizio
+                        </label>
+                        <input type="text" 
+                               id="prodotto2Nome" 
+                               name="prodotto2Nome"
+                               placeholder="Es: Formazione aziendale">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto2Descrizione">
+                            <i class="fas fa-align-left"></i> Descrizione
+                        </label>
+                        <textarea id="prodotto2Descrizione" 
+                                  name="prodotto2Descrizione" 
+                                  rows="3"
+                                  placeholder="Descrivi questo prodotto o servizio..."></textarea>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Prodotto 3 -->
+            <div id="prodottoServizio3" class="prodotto-opzionale">
+                <fieldset class="prodotto-fieldset">
+                    <legend>
+                        <i class="fas fa-cube"></i> Prodotto o Servizio 3
+                    </legend>
+                    <div class="prodotto-numero">3</div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto3Nome">
+                            <i class="fas fa-tag"></i> Nome del prodotto o servizio
+                        </label>
+                        <input type="text" 
+                               id="prodotto3Nome" 
+                               name="prodotto3Nome"
+                               placeholder="Es: Software gestionale">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto3Descrizione">
+                            <i class="fas fa-align-left"></i> Descrizione
+                        </label>
+                        <textarea id="prodotto3Descrizione" 
+                                  name="prodotto3Descrizione" 
+                                  rows="3"
+                                  placeholder="Descrivi questo prodotto o servizio..."></textarea>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Prodotto 4 -->
+            <div id="prodottoServizio4" class="prodotto-opzionale">
+                <fieldset class="prodotto-fieldset">
+                    <legend>
+                        <i class="fas fa-cube"></i> Prodotto o Servizio 4
+                    </legend>
+                    <div class="prodotto-numero">4</div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto4Nome">
+                            <i class="fas fa-tag"></i> Nome del prodotto o servizio
+                        </label>
+                        <input type="text" 
+                               id="prodotto4Nome" 
+                               name="prodotto4Nome"
+                               placeholder="Es: Supporto tecnico 24/7">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto4Descrizione">
+                            <i class="fas fa-align-left"></i> Descrizione
+                        </label>
+                        <textarea id="prodotto4Descrizione" 
+                                  name="prodotto4Descrizione" 
+                                  rows="3"
+                                  placeholder="Descrivi questo prodotto o servizio..."></textarea>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Prodotto 5 -->
+            <div id="prodottoServizio5" class="prodotto-opzionale">
+                <fieldset class="prodotto-fieldset">
+                    <legend>
+                        <i class="fas fa-cube"></i> Prodotto o Servizio 5
+                    </legend>
+                    <div class="prodotto-numero">5</div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto5Nome">
+                            <i class="fas fa-tag"></i> Nome del prodotto o servizio
+                        </label>
+                        <input type="text" 
+                               id="prodotto5Nome" 
+                               name="prodotto5Nome"
+                               placeholder="Es: Analisi e reportistica">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prodotto5Descrizione">
+                            <i class="fas fa-align-left"></i> Descrizione
+                        </label>
+                        <textarea id="prodotto5Descrizione" 
+                                  name="prodotto5Descrizione" 
+                                  rows="3"
+                                  placeholder="Descrivi questo prodotto o servizio..."></textarea>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Bottone aggiungi prodotto -->
+            <button type="button" id="aggiungiProdottoBtn">
+                <i class="fas fa-plus-circle"></i> Aggiungi un altro Prodotto/Servizio
+            </button>
+            
+            <div class="counter-prodotti" id="counterProdotti">
+                <i class="fas fa-info-circle"></i> Hai aggiunto <span id="numeroProdotti">1</span> prodotto/servizio su 5 disponibili
+            </div>
+
+            <!-- Navigazione -->
+            <div class="form-navigation">
+                <button type="button" id="backButtonForm4" class="secondary">
+                    <i class="fas fa-arrow-left"></i> Indietro
+                </button>
+                <button type="submit" id="nextButtonForm4">
+                    Avanti <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Gestione dinamica dei prodotti
+        let prodottiVisibili = 1;
+        const maxProdotti = 5;
+        
+        document.getElementById('aggiungiProdottoBtn').addEventListener('click', function() {
+            if (prodottiVisibili < maxProdotti) {
+                prodottiVisibili++;
+                const prodotto = document.getElementById('prodottoServizio' + prodottiVisibili);
+                prodotto.classList.add('visibile');
+                
+                // Aggiorna il counter
+                document.getElementById('numeroProdotti').textContent = prodottiVisibili;
+                
+                // Se abbiamo raggiunto il massimo, nascondi il bottone
+                if (prodottiVisibili === maxProdotti) {
+                    this.style.display = 'none';
+                }
+                
+                // Focus sul primo campo del nuovo prodotto
+                prodotto.querySelector('input').focus();
+            }
+        });
+    </script>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settimo Form - Dettagli Finanziari</title>
+    
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Il nostro CSS moderno -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}">
+    
+    <style>
+        /* Progress bar completata */
+        .progress-bar::after {
+            width: 100% !important; /* 7/7 - Ultimo step! */
+            background: linear-gradient(90deg, var(--accent-color) 0%, var(--success-color) 100%);
+        }
+        
+        /* Stili specifici per questo form */
+        .sales-projections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .sales-projections {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Tabella costi moderna */
+        .cost-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-top: 20px;
+        }
+        
+        .cost-table-header {
+            background: var(--primary-color);
+            color: white;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.5fr;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .cost-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.5fr;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+        
+        .cost-row:hover {
+            background: var(--background-color);
+        }
+        
+        .cost-row:last-child {
+            border-bottom: none;
+        }
+        
+        .cost-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cost-label i {
+            color: var(--accent-color);
+            width: 20px;
+        }
+        
+        .percentage-input {
+            width: 80px;
+            padding: 8px 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .cost-amount {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+        }
+        
+        /* Riepilogo finanziario */
+        .financial-summary {
+            background: linear-gradient(135deg, var(--background-color) 0%, rgba(52, 152, 219, 0.05) 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .summary-row:last-child {
+            border-bottom: none;
+            margin-top: 10px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .summary-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .summary-row:last-child .summary-label {
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+        
+        .summary-row:last-child .summary-value {
+            color: var(--success-color);
+            font-size: 24px;
+        }
+        
+        /* Indicatori colorati per valori */
+        .positive {
+            color: var(--success-color);
+        }
+        
+        .negative {
+            color: var(--danger-color);
+        }
+        
+        .neutral {
+            color: var(--text-primary);
+        }
+        
+        /* Badge completamento */
+        .completion-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+        }
+        
+        /* Input con icona percentuale */
+        .percentage-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .percentage-container input {
+            padding-right: 25px;
+        }
+        
+        .percentage-symbol {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .cost-table-header,
+            .cost-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                text-align: left;
+            }
+            
+            .cost-amount {
+                text-align: left;
+            }
+            
+            .summary-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
+        
+        <!-- Header del form -->
+        <h2>
+            <i class="fas fa-chart-line"></i> Dettagli Finanziari
+            <span class="completion-badge">
+                <i class="fas fa-check-circle"></i> Ultimo Step!
+            </span>
+        </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px;">
+            Completa le proiezioni finanziarie per il tuo business plan.
+        </p>
+        
+        <form id="formStep7">
+            <!-- Campo hidden per la valuta (da popolare via Flask) -->
+            <!-- <input type="hidden" id="valutaSelezionata" name="valutaSelezionata" value="{{ valuta_form6 }}"> -->
+            
+            <!-- Proiezioni di Vendita -->
+            <fieldset>
+                <legend><i class="fas fa-rocket"></i> Proiezioni di Vendita</legend>
+                
+                <div class="sales-projections">
+                    <div class="form-group">
+                        <label for="venditeAnno1">
+                            <i class="fas fa-calendar-alt"></i> Vendite previste nel primo anno <span class="required"></span>
+                        </label>
+                        <input type="number" 
+                               id="venditeAnno1" 
+                               name="venditeAnno1" 
+                               min="0" 
+                               step="0.01" 
+                               placeholder="Es: 150000"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="crescitaFatturatoAnnuale">
+                            <i class="fas fa-chart-line"></i> Crescita annuale prevista <span class="required"></span>
+                        </label>
+                        <div class="percentage-container">
+                            <input type="number" 
+                                   id="crescitaFatturatoAnnuale" 
+                                   name="crescitaFatturatoAnnuale" 
+                                   min="0" 
+                                   max="100"
+                                   step="1" 
+                                   placeholder="Es: 15"
+                                   required>
+                            <span class="percentage-symbol">%</span>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Struttura dei Costi -->
+            <fieldset>
+                <legend><i class="fas fa-calculator"></i> Struttura dei Costi Previsti (Anno 1)</legend>
+                <p class="helper-text">
+                    <i class="fas fa-info-circle"></i> Modifica le percentuali in base al tuo modello di business. I costi si aggiornano automaticamente.
+                </p>
+                
+                <div class="cost-table">
+                    <div class="cost-table-header">
+                        <div>Voce di Costo</div>
+                        <div>% Vendite</div>
+                        <div>Importo Anno 1</div>
+                    </div>
+                    
+                    <div id="costTableBody">
+                        <!-- Le righe verranno generate via JavaScript -->
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Riepilogo Finanziario -->
+            <div class="financial-summary">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--primary-color);">
+                    <i class="fas fa-file-invoice-dollar"></i> Riepilogo Finanziario (Anno 1)
+                </h3>
+                
+                <div class="summary-row">
+                    <div class="summary-label">
+                        <i class="fas fa-cash-register"></i> Ricavi Totali
+                    </div>
+                    <div class="summary-value neutral" id="ricaviTotali">€ 0.00</div>
+                </div>
+                
+                <div class="summary-row">
+                    <div class="summary-label">
+                        <i class="fas fa-minus-circle"></i> Costi Operativi (esclusi interessi)
+                    </div>
+                    <div class="summary-value negative" id="totaleCostiOperativi">€ 0.00</div>
+                </div>
+                
+                <div class="summary-row">
+                    <div class="summary-label">
+                        <i class="fas fa-percentage"></i> Interessi Passivi
+                    </div>
+                    <div class="summary-value negative" id="interessiPassivi">€ 0.00</div>
+                </div>
+                
+                <div class="summary-row">
+                    <div class="summary-label">
+                        <i class="fas fa-equals"></i> EBT (Utile Prima delle Imposte)
+                    </div>
+                    <div class="summary-value" id="ebt">€ 0.00</div>
+                </div>
+                
+                <div class="summary-row">
+                    <div class="summary-label">
+                        <i class="fas fa-file-invoice-dollar"></i> Importo Tasse
+                    </div>
+                    <div class="summary-value negative" id="importoTasseCalcolato">€ 0.00</div>
+                </div>
+                
+                <div class="summary-row">
+                    <div class="summary-label">
+                        <i class="fas fa-trophy"></i> Utile Netto
+                    </div>
+                    <div class="summary-value" id="utileNetto">€ 0.00</div>
+                </div>
+            </div>
+
+            <!-- Scelta Tipologia Business Plan -->
+            <fieldset>
+                <legend><i class="fas fa-file-alt"></i> Tipologia di Business Plan</legend>
+                <p class="helper-text">
+                    <i class="fas fa-info-circle"></i> Scegli quale versione del business plan vuoi generare.
+                </p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="tipoBPCompleto" name="tipoBP" value="completo" checked required>
+                        <span>
+                            <i class="fas fa-book"></i>
+                            <strong>Completo</strong> - 8 sezioni dettagliate (~15-20 pagine)
+                            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">
+                                Ideale per investitori, banche e bandi che richiedono documentazione completa
+                            </small>
+                        </span>
+                    </label>
+                    <label>
+                        <input type="radio" id="tipoBPBreve" name="tipoBP" value="breve">
+                        <span>
+                            <i class="fas fa-file-alt"></i>
+                            <strong>Sintetico</strong> - 5 sezioni essenziali (max 5 pagine)
+                            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">
+                                Ideale per presentazioni rapide, pitch e valutazioni preliminari
+                            </small>
+                        </span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <!-- Navigazione -->
+            <div class="form-navigation">
+                <button type="button" id="backButtonForm7" class="secondary">
+                    <i class="fas fa-arrow-left"></i> Indietro
+                </button>
+                <button type="submit" id="nextButtonForm7">
+                    <i class="fas fa-check-circle"></i> Completa e Genera Business Plan
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Struttura costi predefinita - ALLINEATA CON SCRIPT.JS
+        const vociDiCostoStruttura = [
+            { id: 'costoDelVenduto', nome: 'Costo del venduto', defaultPercent: 0 },
+            { id: 'salariEBenefici', nome: 'Salari e benefici', defaultPercent: 0 },
+            { id: 'marketing', nome: 'Marketing', defaultPercent: 0 },
+            { id: 'affitto', nome: 'Affitto', defaultPercent: 0 },
+            { id: 'generaleEAmministrazione', nome: 'Generale e amministrazione', defaultPercent: 0 },
+            { id: 'ammortamento', nome: 'Ammortamento', defaultPercent: 0 },
+            { id: 'costiAccessori', nome: 'Costi accessori', defaultPercent: 0 },
+            { id: 'altreSpese', nome: 'Altre spese', defaultPercent: 0 },
+            { id: 'interessiPassivi', nome: 'Interessi passivi', defaultPercent: 0 },
+            { id: 'importoTasse', nome: 'Importo tasse (% EBT)', defaultPercent: 20 }
+        ];
+        
+        // Genera tabella costi con ID CORRETTI
+        function generaTabellaConti() {
+            const tableBody = document.getElementById('costTableBody');
+            if (!tableBody) {
+                console.error('Elemento costTableBody non trovato!');
+                return;
+            }
+            
+            tableBody.innerHTML = '';
+            
+            vociDiCostoStruttura.forEach((voce) => {
+                const row = document.createElement('div');
+                row.className = 'cost-row';
+                
+                // Nota speciale per le tasse
+                const nota = voce.id === 'importoTasse' ? 
+                    '<small style="color: var(--text-secondary); font-size: 11px;"> (% su EBT)</small>' : '';
+                
+                row.innerHTML = `
+                    <div class="cost-label">
+                        <i class="fas fa-calculator"></i>
+                        ${voce.nome}${nota}
+                    </div>
+                    <div>
+                        <input type="number" 
+                               class="percentage-input" 
+                               id="costoVoce_${voce.id}_percent"
+                               name="costoVoce_${voce.id}_percent"
+                               value="${voce.defaultPercent}" 
+                               min="0" 
+                               max="100" 
+                               step="1"
+                               placeholder="0">
+                    </div>
+                    <div class="cost-amount" id="costoVoce_${voce.id}_totale">€ 0.00</div>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Aggiungi event listeners per il calcolo automatico
+            document.querySelectorAll('.percentage-input').forEach(input => {
+                input.addEventListener('input', calcolaFinanziario);
+            });
+            
+            console.log('Tabella costi generata con ID corretti');
+        }
+        
+        // Calcola valori finanziari
+        function calcolaFinanziario() {
+            const vendite = parseFloat(document.getElementById('venditeAnno1').value) || 0;
+            
+            // Simbolo valuta
+            const valutaField = document.getElementById('valutaSelezionata');
+            const valuta = valutaField ? valutaField.value : 'EUR';
+            const simbolo = getSimbolo(valuta);
+            
+            // Aggiorna ricavi totali
+            const ricaviEl = document.getElementById('ricaviTotali');
+            if (ricaviEl) {
+                ricaviEl.textContent = simbolo + ' ' + vendite.toFixed(2);
+            }
+            
+            // Calcola tutti i costi tranne le tasse
+            let costiOperativiTotali = 0;
+            let interessiPassivi = 0;
+            let percentualeTasse = 20; // default
+            
+            vociDiCostoStruttura.forEach((voce) => {
+                const inputEl = document.getElementById('costoVoce_' + voce.id + '_percent');
+                const spanEl = document.getElementById('costoVoce_' + voce.id + '_totale');
+                
+                if (inputEl && spanEl) {
+                    const percentuale = parseFloat(inputEl.value) || 0;
+                    
+                    if (voce.id === 'importoTasse') {
+                        percentualeTasse = percentuale;
+                    } else {
+                        const importo = (vendite * percentuale) / 100;
+                        spanEl.textContent = simbolo + ' ' + importo.toFixed(2);
+                        
+                        if (voce.id === 'interessiPassivi') {
+                            interessiPassivi = importo;
+                        } else {
+                            costiOperativiTotali += importo;
+                        }
+                    }
+                }
+            });
+            
+            // Aggiorna riepilogo
+            const totaleCostiEl = document.getElementById('totaleCostiOperativi');
+            const interessiEl = document.getElementById('interessiPassivi');
+            const ebtEl = document.getElementById('ebt');
+            const tasseEl = document.getElementById('importoTasseCalcolato');
+            const utileEl = document.getElementById('utileNetto');
+            
+            if (totaleCostiEl) totaleCostiEl.textContent = simbolo + ' ' + costiOperativiTotali.toFixed(2);
+            if (interessiEl) interessiEl.textContent = simbolo + ' ' + interessiPassivi.toFixed(2);
+            
+            // Calcola EBT
+            const ebt = vendite - costiOperativiTotali - interessiPassivi;
+            if (ebtEl) {
+                ebtEl.textContent = simbolo + ' ' + Math.abs(ebt).toFixed(2);
+                ebtEl.className = ebt >= 0 ? 'summary-value positive' : 'summary-value negative';
+            }
+            
+            // Calcola tasse (solo se EBT > 0)
+            const tasse = ebt > 0 ? (ebt * percentualeTasse) / 100 : 0;
+            if (tasseEl) tasseEl.textContent = simbolo + ' ' + tasse.toFixed(2);
+            
+            // Aggiorna anche nella tabella
+            const spanTasseEl = document.getElementById('costoVoce_importoTasse_totale');
+            if (spanTasseEl) spanTasseEl.textContent = simbolo + ' ' + tasse.toFixed(2);
+            
+            // Calcola utile netto
+            const utileNetto = ebt - tasse;
+            if (utileEl) {
+                utileEl.textContent = simbolo + ' ' + Math.abs(utileNetto).toFixed(2);
+                utileEl.className = utileNetto >= 0 ? 'summary-value positive' : 'summary-value negative';
+            }
+        }
+        
+        // Ottieni simbolo valuta
+        function getSimbolo(valuta) {
+            const simboli = {
+                'EUR': '€', 'USD': '$', 'GBP': '£', 'JPY': '¥', 'CAD': 'C$',
+                'AUD': 'A$', 'CHF': 'Fr', 'CNY': '¥', 'INR': '₹', 'BRL': 'R$'
+            };
+            return simboli[valuta] || '€';
+        }
+        
+        // Inizializza quando la pagina è pronta
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Inizializzazione Form 7 con struttura corretta...');
+            
+            // Genera la tabella
+            generaTabellaConti();
+            
+            // Aggiungi listener al campo vendite
+            const venditeEl = document.getElementById('venditeAnno1');
+            if (venditeEl) {
+                venditeEl.addEventListener('input', calcolaFinanziario);
+            }
+            
+            // Calcolo iniziale
+            calcolaFinanziario();
+            
+            console.log('Form 7 inizializzato correttamente');
+        });
+    </script>
+
+<!-- Modal di Loading - Inserire prima di </body> -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-modal">
+        <div class="loading-spinner"></div>
+        <div class="loading-title">Generazione Business Plan</div>
+        <div class="loading-message">Stiamo creando il tuo business plan personalizzato...</div>
+        
+    </div>
+</div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

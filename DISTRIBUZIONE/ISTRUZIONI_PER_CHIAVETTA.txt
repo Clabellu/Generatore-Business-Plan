@@ -1,0 +1,119 @@
+================================================================================
+       COME PREPARARE LA CHIAVETTA USB CON L'APP PRONTA ALL'USO
+================================================================================
+
+PASSO 1: CREA IL FILE .env CON LA TUA API KEY
+----------------------------------------------
+1. Apri Blocco Note (o qualsiasi editor di testo)
+2. Scrivi questa riga:
+
+   ANTHROPIC_API_KEY=sk-ant-api03-LA_TUA_CHIAVE_QUI
+
+3. Sostituisci "LA_TUA_CHIAVE_QUI" con la tua vera API key di Anthropic
+4. Salva il file come ".env" (con il punto all'inizio!)
+5. IMPORTANTE: Salva nella cartella DISTRIBUZIONE
+
+
+ESEMPIO DI FILE .env CORRETTO:
+------------------------------
+ANTHROPIC_API_KEY=sk-ant-api03-abc123xyz789...
+
+
+PASSO 2: VERIFICA I FILE
+-------------------------
+Nella cartella DISTRIBUZIONE dovresti avere:
+
+✓ AVVIA.bat
+✓ README.txt
+✓ .env (QUELLO CHE HAI APPENA CREATO!)
+✓ .env.example
+✓ app.py
+✓ requirements.txt
+✓ static/ (cartella)
+✓ templates/ (cartella)
+
+
+PASSO 3: COPIA TUTTO SULLA CHIAVETTA USB
+-----------------------------------------
+1. Inserisci la chiavetta USB
+2. Crea una cartella sulla chiavetta (es: "BusinessPlanAI")
+3. Copia TUTTO il contenuto della cartella DISTRIBUZIONE
+   nella cartella sulla chiavetta
+
+
+PASSO 4: TEST LOCALE (PRIMA DI CONSEGNARE!)
+--------------------------------------------
+IMPORTANTE: Testa che funzioni dalla chiavetta PRIMA di darla!
+
+1. Vai nella cartella sulla chiavetta
+2. Doppio click su AVVIA.bat
+3. Attendi l'installazione delle dipendenze (1-2 minuti)
+4. Verifica che si apra il browser su http://localhost:5000
+5. Prova a generare un business plan breve per testare
+
+
+PASSO 5: CONSEGNA
+------------------
+✓ La chiavetta è pronta!
+✓ L'app funzionerà su qualsiasi PC Windows con Python installato
+✓ Fornisci anche il README.txt stampato se possibile
+
+
+SICUREZZA E MONITORAGGIO:
+-------------------------
+⚠️ IMPORTANTE PER LA TUA API KEY:
+
+1. LA PERSONA VEDRA' LA TUA API KEY nel file .env
+   - Può aprirlo con Blocco Note e leggerla
+   - Potrebbe copiarla e usarla altrove
+
+2. IMPOSTA UN LIMITE DI SPESA:
+   - Vai su https://console.anthropic.com
+   - Settings → Billing → Usage limits
+   - Imposta un limite mensile (es: 20€ per test)
+
+3. MONITORA L'USO:
+   - Dashboard Anthropic → Usage
+   - Controlla regolarmente quanto viene usata
+   - Puoi vedere ogni richiesta fatta
+
+4. QUANDO FINISCE IL TEST:
+   - Chiedi di restituire la chiavetta
+   - Oppure REVOCA l'API key e creane una nuova
+   - Per revocare: Dashboard → API Keys → Delete
+
+
+COSTI STIMATI:
+--------------
+- Business Plan Completo: ~$0.30-0.50
+- Business Plan Sintetico: ~$0.10-0.20
+
+Con 20€ di limite può generare circa 40-60 business plan completi.
+
+
+SUGGERIMENTI:
+-------------
+✓ Fai il test locale SEMPRE prima di consegnare
+✓ Stampa il README.txt da allegare alla chiavetta
+✓ Spiega alla persona che serve Python installato
+✓ Dai un limite di tempo per il test (es: "usa per 2 settimane")
+
+
+DOMANDE FREQUENTI:
+------------------
+Q: Cosa succede se la persona non ha Python?
+A: L'app darà errore, nel README c'è il link per scaricarlo
+
+Q: Posso usare la stessa chiavetta su più PC?
+A: Sì! L'app funziona su qualsiasi PC con Python
+
+Q: I dati inseriti vengono salvati?
+A: Sì, nel browser (localStorage), ma NON online
+
+Q: L'app funziona offline?
+A: NO, serve internet per chiamare l'API di Anthropic
+
+
+================================================================================
+                    Chiavetta pronta in 5 minuti!
+================================================================================
