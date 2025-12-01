@@ -809,6 +809,9 @@ if (formStep7) {
             });
         });
 
+        // Leggi la scelta del tipo di business plan
+        const tipoBP = document.querySelector('input[name="tipoBP"]:checked')?.value || 'completo';
+
         const datiFinanziari = {
             venditeAnno1: vendite1Val,
             crescitaFatturatoAnnuale: crescitaVal,
@@ -820,7 +823,14 @@ if (formStep7) {
                 utileNetto: utileNettoEl ? parseFloat(utileNettoEl.textContent) : 0
             }
         };
-        salvaDatiBP({ datiFinanziari: datiFinanziari }); 
+
+        // Salva sia i dati finanziari che il tipo di BP scelto
+        salvaDatiBP({
+            datiFinanziari: datiFinanziari,
+            tipoBP: tipoBP
+        });
+
+        console.log(`Tipo di Business Plan selezionato: ${tipoBP}`); 
 
         // Ora, invece dell'alert, prepariamo per la generazione
         const datiCompletiPerBP = caricaDatiBP(); // Carica TUTTI i dati da localStorage

@@ -333,6 +333,36 @@
                 </div>
             </div>
 
+            <!-- Scelta Tipologia Business Plan -->
+            <fieldset>
+                <legend><i class="fas fa-file-alt"></i> Tipologia di Business Plan</legend>
+                <p class="helper-text">
+                    <i class="fas fa-info-circle"></i> Scegli quale versione del business plan vuoi generare.
+                </p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="tipoBPCompleto" name="tipoBP" value="completo" checked required>
+                        <span>
+                            <i class="fas fa-book"></i>
+                            <strong>Completo</strong> - 8 sezioni dettagliate (~15-20 pagine)
+                            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">
+                                Ideale per investitori, banche e bandi che richiedono documentazione completa
+                            </small>
+                        </span>
+                    </label>
+                    <label>
+                        <input type="radio" id="tipoBPBreve" name="tipoBP" value="breve">
+                        <span>
+                            <i class="fas fa-file-alt"></i>
+                            <strong>Sintetico</strong> - 5 sezioni essenziali (max 5 pagine)
+                            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">
+                                Ideale per presentazioni rapide, pitch e valutazioni preliminari
+                            </small>
+                        </span>
+                    </label>
+                </div>
+            </fieldset>
+
             <!-- Navigazione -->
             <div class="form-navigation">
                 <button type="button" id="backButtonForm7" class="secondary">

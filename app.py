@@ -536,11 +536,19 @@ def _tabella_errore(valuta_simbolo="€"):
 
 
 # FUNZIONE STANDALONE (FUORI DALLA CLASSE)
-def ottieni_istruzioni_per_sezione(nome_sezione, tabella_finanziaria_md=""):
+def ottieni_istruzioni_per_sezione(nome_sezione, tabella_finanziaria_md="", tipo_bp="completo"):
     """
     Restituisce prompt specifici per ogni sezione del business plan.
     IMPORTANTE: Solo testo narrativo e discorsivo. NO elenchi numerati o puntati.
+    Supporta due versioni: 'completo' (dettagliato) e 'breve' (sintetico, max 5 pagine).
     """
+    # Prefisso per versione breve
+    prefisso_breve = """
+VERSIONE SINTETICA: Questo business plan deve essere CONCISO e SINTETICO, limitato a un massimo di 5 pagine totali.
+La tua sezione deve essere BREVE ma COMPLETA, limitata a 500-700 parole massimo.
+Vai dritto al punto, mantenendo solo le informazioni essenziali.
+"""
+
     istruzioni_specifiche = {
         "Riassunto Esecutivo": """
 Agisci come un consulente finanziario esperto di 20 anni.
@@ -686,25 +694,92 @@ Approfondisci i piani di contingenza specificati dall'utente, descrivendo attrav
 Sviluppa il tema dei sistemi di monitoraggio e controllo menzionati dall'utente, spiegando come questi permettono di identificare precocemente i segnali di rischio e di intervenire tempestivamente. Descrivi le risorse allocate per la gestione del rischio secondo quanto indicato nei form, presentando questi investimenti come elementi che rafforzano la solidità complessiva del business plan.
 
 Concludi con una valutazione delle informazioni sulle assicurazioni o altre forme di protezione specificate, spiegando come l'azienda trasferisce o condivide strategicamente alcuni rischi per ottimizzare il proprio profilo complessivo. Presenta l'intera strategia di gestione del rischio come un elemento che supporta la sostenibilità a lungo termine dell'azienda, dimostrando come l'approccio proposto sia appropriato e ben calibrato per il profilo di rischio specifico dell'organizzazione.
+        """,
+
+        # === SEZIONI PER VERSIONE BREVE/SINTETICA ===
+
+        "Contesto e Mercato": """
+Agisci come un consulente finanziario esperto di 20 anni.
+
+IMPORTANTE: Scrivi ESCLUSIVAMENTE in forma narrativa e discorsiva. NON utilizzare mai elenchi numerati (1, 2, 3), elenchi puntati (-, •), o qualsiasi tipo di lista.
+
+Presenta un'analisi sintetica ma completa del contesto di mercato in cui opera l'azienda, integrando sia l'analisi della situazione che la strategia di marketing in una narrazione coerente e professionale.
+
+Inizia descrivendo il settore di riferimento e il panorama competitivo, spiegando chiaramente quale opportunità di mercato l'azienda intende cogliere. Utilizza l'analisi SWOT fornita per evidenziare i principali punti di forza che differenziano l'offerta, contestualizzando le opportunità nel mercato attuale.
+
+Prosegui presentando la proposta di valore e il posizionamento strategico dell'azienda. Descrivi i segmenti di clienti target e spiega come la strategia di marketing e i canali di distribuzione permetteranno di raggiungere efficacemente questi mercati. Integra informazioni sul modello di pricing e sulla strategia di acquisizione clienti, mostrando come questi elementi si combinano per creare un approccio al mercato solido e scalabile.
+
+Concludi con una riflessione sulle tendenze di mercato favorevoli e su come l'azienda sia posizionata per capitalizzare queste opportunità, pur rimanendo consapevole delle sfide competitive da affrontare.
+        """,
+
+        "Piano Operativo e Management": """
+Agisci come un consulente finanziario esperto di 20 anni.
+
+IMPORTANTE: Scrivi ESCLUSIVAMENTE in forma narrativa e discorsiva. NON utilizzare mai elenchi numerati (1, 2, 3), elenchi puntati (-, •), o qualsiasi tipo di lista.
+
+Presenta una sintesi integrata del piano operativo, del team di gestione e della strategia di crescita in una narrazione coesa che dimostri la capacità esecutiva dell'azienda.
+
+Inizia descrivendo la struttura operativa essenziale dell'azienda e i processi chiave che garantiscono la delivery del prodotto o servizio. Spiega come l'organizzazione è strutturata per supportare la crescita prevista, evidenziando gli aspetti critici dell'infrastruttura tecnologica e delle risorse necessarie.
+
+Prosegui presentando il team di gestione, focalizzandoti sulle competenze ed esperienze chiave dei fondatori e dei leader principali. Descrivi come la composizione del team e la distribuzione delle responsabilità garantiscano l'esecuzione efficace del business plan. Menziona i piani di espansione del team se rilevanti per la crescita.
+
+Sviluppa quindi la visione di crescita a medio termine, spiegando le principali milestone pianificate e come l'azienda intende scalare le operazioni. Descrivi le opportunità di espansione o diversificazione previste, mostrando come queste si allineino con le capacità operative e le competenze del team.
+
+Concludi evidenziando come l'insieme di operazioni solide, leadership competente e strategia di crescita chiara rendano credibile e realizzabile il piano di business proposto.
+        """,
+
+        "Proiezioni Finanziarie": """
+Agisci come un consulente finanziario esperto di 20 anni.
+
+IMPORTANTE: Scrivi in forma narrativa e discorsiva. NON utilizzare elenchi numerati o puntati per il testo descrittivo. Tuttavia, DEVI includere la tabella finanziaria fornita esattamente come specificato.
+
+Presenta una sintesi finanziaria concisa ma completa che dimostri la solidità economica del progetto, basandoti esclusivamente sui dati forniti dall'utente.
+
+Inizia spiegando brevemente il modello di ricavi e la struttura dei costi principali, evidenziando l'investimento richiesto e il suo utilizzo strategico. Presenta quindi la tabella delle proiezioni finanziarie a 5 anni:
+
+{tabella_finanziaria_md}
+
+Dopo la tabella, sviluppa un'analisi narrativa sintetica ma professionale dei dati. Evidenzia la crescita dei ricavi prevista, l'evoluzione dei margini operativi e il punto di break-even. Spiega come le proiezioni dimostrino la sostenibilità economica del progetto e perché rappresentino un'opportunità attraente per gli investitori.
+
+Concludi con una valutazione concisa della solidità finanziaria del business plan, basandoti sui numeri concreti per costruire un'argomentazione convincente sull'opportunità di investimento.
+        """,
+
+        "Rischi Principali": """
+Agisci come un consulente finanziario esperto di 20 anni.
+
+IMPORTANTE: Scrivi ESCLUSIVAMENTE in forma narrativa e discorsiva. NON utilizzare mai elenchi numerati (1, 2, 3), elenchi puntati (-, •), o qualsiasi tipo di lista.
+
+Presenta un'analisi sintetica ma professionale dei principali rischi identificati e delle strategie di mitigazione adottate dall'azienda.
+
+Inizia identificando i rischi più significativi che potrebbero impattare il business, basandoti sulle informazioni fornite dall'utente. Descrivi brevemente la natura di questi rischi e il loro potenziale impatto sull'azienda, mantenendo un tono professionale e bilanciato.
+
+Prosegui presentando le principali strategie di mitigazione implementate per ciascuna categoria di rischio rilevante. Spiega come l'azienda intende ridurre l'esposizione attraverso misure preventive concrete e piani di contingenza appropriati. Evidenzia i sistemi di monitoraggio che permetteranno di identificare precocemente eventuali segnali di allerta.
+
+Concludi rassicurando sulla maturità dell'approccio alla gestione del rischio, mostrando come la consapevolezza e la preparazione dell'azienda rafforzino la solidità complessiva del business plan e la fiducia degli investitori nella capacità di navigare le sfide future.
         """
     }
 
     prompt = istruzioni_specifiche.get(nome_sezione, "...")
 
-    if nome_sezione == "Finanza":
+    # Aggiungi prefisso per versione breve
+    if tipo_bp == 'breve':
+        prompt = prefisso_breve + "\n" + prompt
+
+    # Gestione tabelle finanziarie per entrambe le versioni
+    if nome_sezione == "Finanza" or nome_sezione == "Proiezioni Finanziarie":
         print(f">>>> PRIMA sostituzione: {tabella_finanziaria_md[:100]}...")  # Debug: mostra i primi 100 caratteri della tabella
-        # Sezione Finanza: inserisci la tabella finanziaria nel prompt
+        # Inserisci la tabella finanziaria nel prompt
         prompt = prompt.replace("{tabella_finanziaria_md}", tabella_finanziaria_md)
-        print(f">>>> DOPO sosstituzione: tabella presente nel prompt = {'tabella_finanziaria_md' not in prompt}")
-    
+        print(f">>>> DOPO sostituzione: tabella presente nel prompt = {'tabella_finanziaria_md' not in prompt}")
+
     return prompt
     
     
-def costruisci_prompt_per_sezione(nome_sezione, dati_bp, contesto_precedente, tabella_finanziaria_md=""):
+def costruisci_prompt_per_sezione(nome_sezione, dati_bp, contesto_precedente, tabella_finanziaria_md="", tipo_bp="completo"):
     prompt_parts = []
-    
+
     # 1. Ottieni le istruzioni specifiche per la sezione corrente
-    istruzione_specifica = ottieni_istruzioni_per_sezione(nome_sezione, tabella_finanziaria_md)
+    istruzione_specifica = ottieni_istruzioni_per_sezione(nome_sezione, tabella_finanziaria_md, tipo_bp)
     prompt_parts.append(istruzione_specifica)
 
     # 2. Fornisci il contesto delle sezioni precedenti (fondamentale per la coerenza)
@@ -752,8 +827,35 @@ def handle_genera_business_plan():
 
     # 2. Inizia il blocco try per gestire qualsiasi errore durante il processo
     try:
-        # 3. Definisci le variabili che serviranno nel ciclo
-        sezioni_da_generare = ['Riassunto Esecutivo', 'Analisi della Situazione', 'Marketing', 'Operazioni', 'Gestione', 'Strategia di Crescita', 'Finanza', 'Rischio e Mitigazione']
+        # 3. Determina il tipo di business plan richiesto
+        tipo_bp = dati_completi_bp.get('tipoBP', 'completo')
+        print(f">>> Tipo di Business Plan richiesto: {tipo_bp}")
+
+        # 4. Definisci le sezioni in base al tipo di BP
+        if tipo_bp == 'breve':
+            sezioni_da_generare = [
+                'Riassunto Esecutivo',
+                'Contesto e Mercato',
+                'Piano Operativo e Management',
+                'Proiezioni Finanziarie',
+                'Rischi Principali'
+            ]
+            max_tokens = 2500  # Versione più breve
+            print(">>> Modalità SINTETICA attivata: 5 sezioni, max 5 pagine")
+        else:
+            sezioni_da_generare = [
+                'Riassunto Esecutivo',
+                'Analisi della Situazione',
+                'Marketing',
+                'Operazioni',
+                'Gestione',
+                'Strategia di Crescita',
+                'Finanza',
+                'Rischio e Mitigazione'
+            ]
+            max_tokens = 4000  # Versione completa
+            print(">>> Modalità COMPLETA attivata: 8 sezioni dettagliate")
+
         business_plan_completo = []
         contesto_precedente = ""
 
@@ -763,19 +865,19 @@ def handle_genera_business_plan():
         valuta_simbolo = valuta_scelta.split('(')[1].replace(')','') if '(' in valuta_scelta else valuta_scelta
         tabella_markdown = calcola_e_formatta_proiezioni(dati_finanziari, valuta_simbolo)
 
-        # 4. Esegui il ciclo per generare ogni sezione
+        # 5. Esegui il ciclo per generare ogni sezione
         for i, nome_sezione in enumerate(sezioni_da_generare):
             print(f">>> Generazione Sezione {i+1}/{len(sezioni_da_generare)}: '{nome_sezione}'...")
 
             # Costruisci il prompt specifico per la sezione corrente
-            prompt_da_usare = costruisci_prompt_per_sezione(nome_sezione, dati_completi_bp, contesto_precedente, tabella_markdown)
-            
+            prompt_da_usare = costruisci_prompt_per_sezione(nome_sezione, dati_completi_bp, contesto_precedente, tabella_markdown, tipo_bp)
+
             # Chiamata API a Claude per la sezione corrente
             # Assicurati di usare il tuo model_id corretto
             model_id = "claude-3-7-sonnet-20250219"  # Sostituisci con il tuo model_id se necessario
             response = anthropic_client.messages.create(
                 model=model_id,
-                max_tokens=4000,
+                max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt_da_usare}]
             )
             testo_sezione_generata = response.content[0].text.strip() if response.content else ""
