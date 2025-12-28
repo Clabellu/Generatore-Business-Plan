@@ -856,11 +856,11 @@ def handle_genera_business_plan():
     # 1. Controlla e ricevi i dati JSON dal frontend
     if not request.is_json:
         return jsonify({"status": "error", "message": "Richiesta non in formato JSON"}), 400
-    
+
     dati_completi_bp = request.get_json()
     if not dati_completi_bp:
         return jsonify({"status": "error", "message": "Nessun dato ricevuto"}), 400
-    
+
     if not anthropic_client:
         return jsonify({"status": "error", "message": "Client Anthropic non inizializzato."}), 500
 
@@ -914,40 +914,147 @@ def handle_genera_business_plan():
             prompt_da_usare = costruisci_prompt_per_sezione(nome_sezione, dati_completi_bp, contesto_precedente, tabella_markdown, tipo_bp)
 
             # Chiamata API a Claude per la sezione corrente
-            # Assicurati di usare il tuo model_id corretto
-            model_id = "claude-3-7-sonnet-20250219"  # Sostituisci con il tuo model_id se necessario
+            model_id = "claude-3-7-sonnet-20250219"
             response = anthropic_client.messages.create(
                 model=model_id,
                 max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt_da_usare}]
             )
             testo_sezione_generata = response.content[0].text.strip() if response.content else ""
-            
-                       
+
+
             sezione_formattata = f"## {nome_sezione}\n\n{testo_sezione_generata}\n\n"
             business_plan_completo.append(sezione_formattata)
             contesto_precedente += sezione_formattata
-            
+
             print(f">>> Sezione '{nome_sezione}' generata con successo.")
 
         # 5. Prepara il risultato finale
         testo_finale_completo = "".join(business_plan_completo)
         html_output = convert_text_to_html(testo_finale_completo)
 
+        # NUOVO: Salva BP in sessione per anteprima
+        from flask import session
+        session['preview_bp'] = {
+            'tipo': tipo_bp,
+            'titolo': dati_completi_bp.get('nomeProgetto', 'Business Plan'),
+            'contenuto_text': testo_finale_completo,
+            'contenuto_html': html_output,
+            'dati_input': dati_completi_bp,
+            'sezioni': sezioni_da_generare
+        }
+        session.modified = True
+
+        print(">>> BP salvato in sessione per anteprima")
+
+        # Ritorna URL per redirect a preview
         return jsonify({
             "status": "success",
-            "business_plan_text": testo_finale_completo,
-            "business_plan_html": html_output
+            "redirect_url": url_for('preview_business_plan')
         })
 
     # 6. Blocco except per catturare qualsiasi errore avvenuto nel blocco try
     except Exception as e:
         print(f"ERRORE CRITICO durante la generazione a sezioni: {e}")
-        # Includi un traceback per un debug più facile nel terminale
         import traceback
         traceback.print_exc()
         return jsonify({"status": "error", "message": f"Errore interno del server durante la generazione del business plan: {e}"}), 500
 
+
+@app.route('/preview-business-plan')
+def preview_business_plan():
+    """
+    Mostra anteprima del BP generato (prime 2 sezioni)
+    Con overlay/modal per sbloccare il contenuto completo
+    """
+    from flask import session
+
+    # Recupera BP dalla sessione
+    preview_bp = session.get('preview_bp')
+
+    if not preview_bp:
+        flash('Nessun business plan da visualizzare. Genera prima un BP.', 'error')
+        return redirect(url_for('mostra_form', page_name='1_modello_business.html'))
+
+    # Determina stato utente per modal CTA
+    user_state = 'not_logged_in'
+    crediti_disponibili = 0
+
+    if current_user.is_authenticated:
+        crediti_disponibili = current_user.get_credits(preview_bp['tipo'])
+        if crediti_disponibili > 0:
+            user_state = 'has_credits'
+        else:
+            user_state = 'no_credits'
+
+    return render_template('preview_business_plan.html',
+                         bp=preview_bp,
+                         user_state=user_state,
+                         crediti_disponibili=crediti_disponibili,
+                         user=current_user)
+
+
+@app.route('/unlock-business-plan', methods=['POST'])
+def unlock_business_plan():
+    """
+    Sblocca il BP completo:
+    - Non loggato: redirect a registrazione
+    - Loggato senza crediti: redirect a shop
+    - Loggato con crediti: consuma credito, salva BP, mostra completo
+    """
+    from flask import session
+
+    # Verifica che ci sia un BP in anteprima
+    preview_bp = session.get('preview_bp')
+
+    if not preview_bp:
+        flash('Nessun business plan da sbloccare.', 'error')
+        return redirect(url_for('mostra_form', page_name='1_modello_business.html'))
+
+    # Caso 1: Utente NON loggato
+    if not current_user.is_authenticated:
+        # Salva URL di ritorno per dopo il login
+        session['next_url'] = url_for('unlock_business_plan')
+        flash('Registrati o accedi per sbloccare il Business Plan completo!', 'info')
+        return redirect(url_for('auth.register'))
+
+    # Caso 2: Utente loggato SENZA crediti
+    crediti_disponibili = current_user.get_credits(preview_bp['tipo'])
+
+    if crediti_disponibili == 0:
+        flash(f'Non hai crediti {preview_bp["tipo"]}! Acquista crediti per sbloccare il BP.', 'warning')
+        return redirect(url_for('buy_credits'))
+
+    # Caso 3: Utente loggato CON crediti
+    try:
+        from models import BusinessPlan
+
+        # Salva BP nel database
+        bp_saved = BusinessPlan(
+            user_id=current_user.id,
+            tipo=preview_bp['tipo'],
+            titolo=preview_bp['titolo'],
+            contenuto_text=preview_bp['contenuto_text'],
+            contenuto_html=preview_bp['contenuto_html'],
+            dati_input=preview_bp['dati_input']
+        )
+        db.session.add(bp_saved)
+        db.session.commit()
+
+        # Consuma 1 credito
+        from credits import consuma_credito
+        consuma_credito(current_user.id, preview_bp['tipo'])
+
+        # Pulisci session
+        session.pop('preview_bp', None)
+
+        flash(f'✅ Business Plan sbloccato! Consumato 1 credito {preview_bp["tipo"]}', 'success')
+        return redirect(url_for('view_business_plan', bp_id=bp_saved.id))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Errore durante lo sblocco: {str(e)}', 'error')
+        return redirect(url_for('preview_business_plan'))
 
 
 

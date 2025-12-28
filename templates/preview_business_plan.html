@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anteprima Business Plan - {{ bp.titolo }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .preview-header h1 {
+            margin: 0 0 10px 0;
+        }
+
+        .preview-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: rgba(255,255,255,0.2);
+            margin-top: 10px;
+        }
+
+        .bp-content-wrapper {
+            position: relative;
+            background: white;
+            border-radius: 15px;
+            padding: 60px 80px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .bp-preview-content {
+            line-height: 1.8;
+        }
+
+        .bp-preview-content h1,
+        .bp-preview-content h2,
+        .bp-preview-content h3 {
+            color: #333;
+            margin: 25px 0 15px 0;
+        }
+
+        .bp-preview-content h2 {
+            color: #667eea;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .bp-preview-content p {
+            margin: 12px 0;
+            color: #444;
+        }
+
+        .bp-preview-content ul,
+        .bp-preview-content ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        /* Sezioni blurrate */
+        .blurred-section {
+            filter: blur(8px);
+            user-select: none;
+            pointer-events: none;
+            position: relative;
+        }
+
+        /* Overlay per contenuto bloccato */
+        .locked-overlay {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.95) 20%, rgba(255,255,255,0.98));
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .unlock-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 60px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 20px;
+        }
+
+        .unlock-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .unlock-card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 32px;
+        }
+
+        .unlock-card p {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .credits-info {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .credits-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .credits-amount {
+            font-size: 48px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+        }
+
+        .price-tag {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .price-tag.discount {
+            background: #dc3545;
+        }
+
+        .features-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .features-list li {
+            margin: 10px 0;
+            color: #444;
+        }
+
+        .features-list i {
+            color: #28a745;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .bp-content-wrapper {
+                padding: 30px 20px;
+            }
+
+            .unlock-card {
+                padding: 30px 20px;
+            }
+
+            .unlock-card h2 {
+                font-size: 24px;
+            }
+
+            .unlock-card p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="navbar-brand">
+            <i class="fas fa-briefcase"></i> Business Plan AI
+        </a>
+        <div>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 14px;">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 14px;">
+                    <i class="fas fa-sign-in-alt"></i> Accedi
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="preview-header">
+            <h1><i class="fas fa-eye"></i> Anteprima Business Plan</h1>
+            <p>{{ bp.titolo }}</p>
+            <span class="preview-badge">{{ bp.tipo }}</span>
+        </div>
+
+        <div class="bp-content-wrapper">
+            <div class="bp-preview-content">
+                {% set sections = bp.contenuto_html.split('<h2>') %}
+
+                {% for i in range(sections|length) %}
+                    {% if i == 0 %}
+                        {# Prima parte senza h2 #}
+                        {{ sections[i]|safe }}
+                    {% elif i <= 2 %}
+                        {# Prime 2 sezioni visibili #}
+                        <h2>{{ sections[i]|safe }}
+                    {% else %}
+                        {# Resto blurrato #}
+                        {% if i == 3 %}
+                            <div class="blurred-section">
+                        {% endif %}
+                        <h2>{{ sections[i]|safe }}
+                    {% endif %}
+                {% endfor %}
+
+                {% if sections|length > 3 %}
+                    </div> {# Chiudi blurred-section #}
+                {% endif %}
+            </div>
+
+            {# Overlay di sblocco #}
+            <div class="locked-overlay">
+                <div class="unlock-card">
+                    {% if user_state == 'not_logged_in' %}
+                        {# Utente NON loggato #}
+                        <div class="unlock-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h2>Questo è solo un assaggio!</h2>
+                        <p>Hai visto le prime sezioni del tuo Business Plan. Per accedere al documento completo:</p>
+
+                        <div class="features-list">
+                            <ul style="list-style: none; padding: 0;">
+                                <li><i class="fas fa-check-circle"></i> Registrati gratuitamente</li>
+                                <li><i class="fas fa-check-circle"></i> Acquista crediti</li>
+                                <li><i class="fas fa-check-circle"></i> Sblocca il BP completo</li>
+                                <li><i class="fas fa-check-circle"></i> Download illimitati (PDF, DOCX)</li>
+                            </ul>
+                        </div>
+
+                        <div class="price-tag">
+                            {% if bp.tipo == 'breve' %}
+                                Da €29.90
+                            {% else %}
+                                Da €59.90
+                            {% endif %}
+                        </div>
+
+                        <div style="margin-top: 30px;">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Registrati Ora
+                            </a>
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">
+                                <i class="fas fa-sign-in-alt"></i> Hai già un account?
+                            </a>
+                        </div>
+
+                    {% elif user_state == 'no_credits' %}
+                        {# Utente loggato SENZA crediti #}
+                        <div class="unlock-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h2>Acquista Crediti!</h2>
+                        <p>Ciao {{ current_user.nome or current_user.email }}! Per sbloccare questo Business Plan hai bisogno di crediti.</p>
+
+                        <div class="credits-info">
+                            <h3>Crediti {{ bp.tipo|capitalize }} disponibili</h3>
+                            <div class="credits-amount">0</div>
+                        </div>
+
+                        <div class="price-tag">
+                            {% if bp.tipo == 'breve' %}
+                                Da €29.90
+                            {% else %}
+                                Da €59.90
+                            {% endif %}
+                        </div>
+
+                        <p style="margin-top: 20px;">Acquista crediti per sbloccare il tuo Business Plan completo!</p>
+
+                        <div style="margin-top: 30px;">
+                            <a href="{{ url_for('buy_credits') }}" class="btn btn-primary">
+                                <i class="fas fa-credit-card"></i> Vai allo Shop
+                            </a>
+                        </div>
+
+                    {% elif user_state == 'has_credits' %}
+                        {# Utente loggato CON crediti #}
+                        <div class="unlock-icon" style="-webkit-text-fill-color: #28a745;">
+                            <i class="fas fa-unlock-alt"></i>
+                        </div>
+                        <h2>Sblocca il Business Plan!</h2>
+                        <p>Ciao {{ current_user.nome or current_user.email }}! Conferma per utilizzare 1 credito e accedere al documento completo.</p>
+
+                        <div class="credits-info">
+                            <h3>Crediti {{ bp.tipo|capitalize }} disponibili</h3>
+                            <div class="credits-amount">{{ crediti_disponibili }}</div>
+                        </div>
+
+                        <div class="features-list">
+                            <ul style="list-style: none; padding: 0;">
+                                <li><i class="fas fa-check-circle"></i> Accesso completo al documento</li>
+                                <li><i class="fas fa-check-circle"></i> Download illimitati (PDF, DOCX)</li>
+                                <li><i class="fas fa-check-circle"></i> Salvataggio permanente</li>
+                                <li><i class="fas fa-check-circle"></i> Accessibile dalla dashboard</li>
+                            </ul>
+                        </div>
+
+                        <p style="margin-top: 20px;"><strong>Costo:</strong> 1 credito {{ bp.tipo }}</p>
+
+                        <div style="margin-top: 30px;">
+                            <form method="POST" action="{{ url_for('unlock_business_plan') }}" style="display: inline;">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-unlock"></i> Sblocca Ora
+                                </button>
+                            </form>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                                Annulla
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
