@@ -984,6 +984,141 @@ def dashboard():
                          user=current_user)
 
 
+@app.route('/my-business-plans')
+@login_required
+def my_business_plans():
+    """
+    Pagina con lista completa dei business plan generati dall'utente
+    """
+    from models import BusinessPlan
+    business_plans = BusinessPlan.query.filter_by(
+        user_id=current_user.id
+    ).order_by(BusinessPlan.created_at.desc()).all()
+
+    return render_template('my_business_plans.html',
+                         business_plans=business_plans,
+                         user=current_user)
+
+
+@app.route('/view-bp/<int:bp_id>')
+@login_required
+def view_business_plan(bp_id):
+    """
+    Visualizza un singolo business plan
+    """
+    from models import BusinessPlan
+    bp = BusinessPlan.query.get_or_404(bp_id)
+
+    # Verifica che il BP appartenga all'utente
+    if bp.user_id != current_user.id:
+        flash('Non hai accesso a questo business plan', 'error')
+        return redirect(url_for('dashboard'))
+
+    return render_template('view_business_plan.html',
+                         bp=bp,
+                         user=current_user)
+
+
+@app.route('/download-bp/<int:bp_id>/<format>')
+@login_required
+def download_business_plan(bp_id, format):
+    """
+    Download business plan in PDF o DOCX
+    """
+    from models import BusinessPlan
+
+    bp = BusinessPlan.query.get_or_404(bp_id)
+
+    # Verifica che il BP appartenga all'utente
+    if bp.user_id != current_user.id:
+        flash('Non hai accesso a questo business plan', 'error')
+        return redirect(url_for('dashboard'))
+
+    if format == 'pdf':
+        # Genera PDF
+        try:
+            pdf_content = HTML(string=bp.contenuto_html).write_pdf()
+
+            filename = f"business_plan_{bp.id}_{bp.tipo}.pdf"
+
+            return Response(
+                pdf_content,
+                mimetype='application/pdf',
+                headers={
+                    'Content-Disposition': f'attachment; filename="{filename}"'
+                }
+            )
+        except Exception as e:
+            flash(f'Errore durante la generazione del PDF: {str(e)}', 'error')
+            return redirect(url_for('my_business_plans'))
+
+    elif format == 'docx':
+        # Genera DOCX
+        try:
+            doc = Document()
+
+            # Aggiungi titolo
+            if bp.titolo:
+                doc.add_heading(bp.titolo, 0)
+
+            # Converti HTML/Markdown in testo formattato
+            # Per ora usiamo il testo semplice
+            soup = BeautifulSoup(bp.contenuto_html, 'html.parser')
+            text = soup.get_text()
+
+            # Aggiungi il testo al documento
+            for paragraph in text.split('\n\n'):
+                if paragraph.strip():
+                    doc.add_paragraph(paragraph.strip())
+
+            # Salva in memoria
+            docx_io = io.BytesIO()
+            doc.save(docx_io)
+            docx_io.seek(0)
+
+            filename = f"business_plan_{bp.id}_{bp.tipo}.docx"
+
+            return send_file(
+                docx_io,
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                as_attachment=True,
+                download_name=filename
+            )
+        except Exception as e:
+            flash(f'Errore durante la generazione del DOCX: {str(e)}', 'error')
+            return redirect(url_for('my_business_plans'))
+
+    else:
+        flash('Formato non supportato', 'error')
+        return redirect(url_for('my_business_plans'))
+
+
+@app.route('/delete-bp/<int:bp_id>', methods=['POST'])
+@login_required
+def delete_business_plan(bp_id):
+    """
+    Elimina un business plan
+    """
+    from models import BusinessPlan
+
+    bp = BusinessPlan.query.get_or_404(bp_id)
+
+    # Verifica che il BP appartenga all'utente
+    if bp.user_id != current_user.id:
+        flash('Non hai accesso a questo business plan', 'error')
+        return redirect(url_for('dashboard'))
+
+    try:
+        db.session.delete(bp)
+        db.session.commit()
+        flash('Business Plan eliminato con successo', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Errore durante l\'eliminazione: {str(e)}', 'error')
+
+    return redirect(url_for('my_business_plans'))
+
+
 # === ROUTE ACQUISTO CREDITI ===
 @app.route('/buy-credits', methods=['GET', 'POST'])
 @login_required

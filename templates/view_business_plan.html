@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ bp.titolo or 'Business Plan #' ~ bp.id }} - Business Plan Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .bp-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .bp-header h1 {
+            margin: 0 0 15px 0;
+        }
+
+        .bp-meta {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            opacity: 0.9;
+        }
+
+        .bp-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bp-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .bp-actions {
+            background: white;
+            padding: 20px 40px;
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #f5f7fa;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #e8ebf0;
+        }
+
+        .bp-content {
+            background: white;
+            padding: 60px 80px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            line-height: 1.8;
+        }
+
+        .bp-content h1 {
+            color: #333;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .bp-content h2 {
+            color: #667eea;
+            margin: 30px 0 15px 0;
+        }
+
+        .bp-content h3 {
+            color: #555;
+            margin: 25px 0 12px 0;
+        }
+
+        .bp-content p {
+            margin: 12px 0;
+            color: #444;
+        }
+
+        .bp-content ul, .bp-content ol {
+            margin: 15px 0 15px 30px;
+            color: #444;
+        }
+
+        .bp-content li {
+            margin: 8px 0;
+        }
+
+        .bp-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .bp-content table th,
+        .bp-content table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .bp-content table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .bp-content table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .bp-content blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+
+        .bp-content code {
+            background: #f5f7fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+
+        .bp-content pre {
+            background: #f5f7fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .bp-content pre code {
+            background: none;
+            padding: 0;
+            color: #333;
+        }
+
+        @media print {
+            .navbar, .bp-actions {
+                display: none !important;
+            }
+
+            .bp-header {
+                border-radius: 0;
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .bp-content {
+                border-radius: 0;
+                box-shadow: none;
+                padding: 40px;
+            }
+
+            body {
+                background: white;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bp-content {
+                padding: 30px 20px;
+            }
+
+            .bp-actions {
+                padding: 15px 20px;
+            }
+
+            .bp-header {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+            <i class="fas fa-briefcase"></i> Business Plan AI
+        </a>
+        <div class="navbar-actions">
+            <a href="{{ url_for('my_business_plans') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Indietro
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="bp-header">
+            <h1>{{ bp.titolo or 'Business Plan #' ~ bp.id }}</h1>
+            <div class="bp-meta">
+                <span class="bp-badge">{{ bp.tipo }}</span>
+                <span>
+                    <i class="fas fa-calendar"></i>
+                    {{ bp.created_at.strftime('%d/%m/%Y') }}
+                </span>
+                <span>
+                    <i class="fas fa-clock"></i>
+                    {{ bp.created_at.strftime('%H:%M') }}
+                </span>
+            </div>
+        </div>
+
+        <div class="bp-actions">
+            <a href="{{ url_for('download_business_plan', bp_id=bp.id, format='pdf') }}" class="btn btn-success">
+                <i class="fas fa-file-pdf"></i> Scarica PDF
+            </a>
+            <a href="{{ url_for('download_business_plan', bp_id=bp.id, format='docx') }}" class="btn btn-success">
+                <i class="fas fa-file-word"></i> Scarica DOCX
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print"></i> Stampa
+            </button>
+        </div>
+
+        <div class="bp-content">
+            {{ bp.contenuto_html | safe }}
+        </div>
+    </div>
+</body>
+</html>
