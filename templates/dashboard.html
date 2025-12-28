@@ -191,7 +191,7 @@
 
             <div class="stat-card">
                 <h3><i class="fas fa-file-alt"></i> BP Generati</h3>
-                <div class="stat-value">{{ total_bp }}</div>
+                <div class="stat-value">{{ business_plans|length }}</div>
             </div>
         </div>
 
@@ -213,7 +213,7 @@
                 </div>
                 <h3>Acquista Crediti</h3>
                 <p>Compra pacchetti di business plan</p>
-                <a href="#" class="btn btn-primary">
+                <a href="{{ url_for('buy_credits') }}" class="btn btn-primary">
                     <i class="fas fa-credit-card"></i> Vai allo Shop
                 </a>
             </div>

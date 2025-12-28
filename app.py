@@ -12,9 +12,16 @@ from bs4 import BeautifulSoup
 import html
 
 # Import database e auth
-from database import init_database, create_tables
+from database import init_database, create_tables, db
 from auth import init_auth
-from models import User
+from models import User, Order
+from credits import (
+    aggiungi_crediti,
+    consuma_credito,
+    verifica_crediti,
+    get_pacchetti_crediti,
+    get_pacchetto_by_id
+)
 
 load_dotenv()
 
@@ -959,6 +966,72 @@ def dashboard():
                          business_plans=business_plans,
                          ordini=ordini,
                          user=current_user)
+
+
+# === ROUTE ACQUISTO CREDITI ===
+@app.route('/buy-credits', methods=['GET', 'POST'])
+@login_required
+def buy_credits():
+    """
+    Pagina acquisto crediti e gestione ordine
+    """
+    if request.method == 'GET':
+        # Mostra la pagina con i pacchetti disponibili
+        pacchetti = get_pacchetti_crediti()
+        crediti_brevi = current_user.get_credits('breve')
+        crediti_completi = current_user.get_credits('completo')
+
+        return render_template('buy_credits.html',
+                             pacchetti=pacchetti,
+                             crediti_brevi=crediti_brevi,
+                             crediti_completi=crediti_completi)
+
+    # POST - Processa l'acquisto
+    pacchetto_id = request.form.get('pacchetto_id')
+
+    if not pacchetto_id:
+        flash('Seleziona un pacchetto', 'error')
+        return redirect(url_for('buy_credits'))
+
+    # Ottieni informazioni pacchetto
+    pacchetto = get_pacchetto_by_id(pacchetto_id)
+
+    if not pacchetto:
+        flash('Pacchetto non trovato', 'error')
+        return redirect(url_for('buy_credits'))
+
+    # IMPORTANTE: Per ora saltiamo Stripe e aggiungiamo crediti direttamente
+    # In STEP 4 implementeremo Stripe per pagamenti reali
+    try:
+        # Crea ordine (stato: completato direttamente per test)
+        ordine = Order(
+            user_id=current_user.id,
+            pacchetto_id=pacchetto_id,
+            tipo_credito=pacchetto['tipo'],
+            quantita=pacchetto['quantita'],
+            prezzo=pacchetto['prezzo'],
+            stato='completato',  # Per ora sempre completato
+            metodo_pagamento='test'  # Segnaposto per test
+        )
+        db.session.add(ordine)
+        db.session.commit()
+
+        # Aggiungi i crediti all'utente
+        aggiungi_crediti(
+            user_id=current_user.id,
+            tipo=pacchetto['tipo'],
+            quantita=pacchetto['quantita'],
+            order_id=ordine.id
+        )
+
+        flash(f"✅ Acquisto completato! Aggiunti {pacchetto['quantita']} crediti '{pacchetto['tipo']}'", 'success')
+        return redirect(url_for('dashboard'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Errore durante l\'acquisto: {str(e)}', 'error')
+        return redirect(url_for('buy_credits'))
+
 
 # === NUOVE ROTTE PER I FORM ===
 # Aggiungi una rotta per ogni pagina del tuo form.

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acquista Crediti - Business Plan Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --accent-color: #3490dc;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --background: #f7fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-size: 16px;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .back-link i {
+            margin-right: 8px;
+        }
+
+        .credits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .credit-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .credit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .credit-card.popolare {
+            border: 3px solid var(--primary-color);
+        }
+
+        .badge-popolare {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .credit-card h3 {
+            font-size: 24px;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .credit-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 20px;
+            min-height: 40px;
+        }
+
+        .price-container {
+            margin: 20px 0;
+        }
+
+        .price {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+
+        .price-unit {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .risparmio {
+            display: inline-block;
+            background: #d4edda;
+            color: #155724;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .features {
+            list-style: none;
+            margin: 25px 0;
+        }
+
+        .features li {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li i {
+            color: var(--success-color);
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .buy-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .buy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .buy-button:active {
+            transform: translateY(0);
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+
+        .info-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .info-icon i {
+            color: white;
+            font-size: 18px;
+        }
+
+        .info-content h4 {
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .info-content p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .current-balance {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(52, 144, 220, 0.1));
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .current-balance h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .balance-item {
+            text-align: center;
+        }
+
+        .balance-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .balance-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .credits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-link">
+            <i class="fas fa-arrow-left"></i> Torna alla Dashboard
+        </a>
+
+        <div class="header">
+            <h1>Acquista Crediti</h1>
+            <p>Scegli il pacchetto più adatto alle tue esigenze</p>
+        </div>
+
+        <!-- Saldo Corrente -->
+        <div class="current-balance">
+            <h3><i class="fas fa-wallet"></i> I Tuoi Crediti Attuali</h3>
+            <div class="balance-grid">
+                <div class="balance-item">
+                    <div class="balance-number">{{ crediti_brevi }}</div>
+                    <div class="balance-label">Business Plan Brevi</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-number">{{ crediti_completi }}</div>
+                    <div class="balance-label">Business Plan Completi</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pacchetti Crediti -->
+        <div class="credits-grid">
+            {% for pacchetto in pacchetti %}
+            <div class="credit-card {% if pacchetto.popolare %}popolare{% endif %}">
+                {% if pacchetto.popolare %}
+                <span class="badge-popolare">Più Richiesto</span>
+                {% endif %}
+
+                <h3>{{ pacchetto.nome }}</h3>
+                <p class="credit-description">{{ pacchetto.descrizione }}</p>
+
+                <div class="price-container">
+                    <div class="price">€{{ "%.2f"|format(pacchetto.prezzo) }}</div>
+                    {% if pacchetto.quantita > 1 %}
+                    <div class="price-unit">€{{ "%.2f"|format(pacchetto.prezzo_unitario) }} per business plan</div>
+                    {% endif %}
+                    {% if pacchetto.risparmio > 0 %}
+                    <div class="risparmio">
+                        <i class="fas fa-tag"></i> Risparmi €{{ "%.2f"|format(pacchetto.risparmio) }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <ul class="features">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        {{ pacchetto.quantita }} Business Plan {{ 'Brevi' if pacchetto.tipo == 'breve' else 'Completi' }}
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        {% if pacchetto.tipo == 'breve' %}
+                        Massimo 5 pagine per piano
+                        {% else %}
+                        15-20 pagine dettagliate
+                        {% endif %}
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        Download PDF e DOCX
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        Generazione con AI avanzata
+                    </li>
+                </ul>
+
+                <form method="POST" action="/buy-credits">
+                    <input type="hidden" name="pacchetto_id" value="{{ pacchetto.id }}">
+                    <button type="submit" class="buy-button">
+                        <i class="fas fa-shopping-cart"></i> Acquista Ora
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Informazioni -->
+        <div class="info-section">
+            <h2>Perché Acquistare Crediti?</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-infinity"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Nessuna Scadenza</h4>
+                        <p>I tuoi crediti non scadono mai. Usali quando vuoi.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Generazione Immediata</h4>
+                        <p>Crea il tuo business plan in pochi minuti.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Pagamento Sicuro</h4>
+                        <p>Transazioni protette con Stripe.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Supporto Dedicato</h4>
+                        <p>Assistenza per qualsiasi necessità.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <script>
+            {% for category, message in messages %}
+            alert('{{ message }}');
+            {% endfor %}
+        </script>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
