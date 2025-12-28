@@ -861,15 +861,20 @@ if (formStep7) {
         .then(data => {
             hideLoadingModal();
 
-            console.log("PASSO A: Dati ricevuti dal server:", data);
-            if (data.status === 'success' && data.business_plan_text && data.business_plan_html) {
-                console.log("PASSO B: HTML ricevuto dal server:", data.business_plan_html);
-                sessionStorage.setItem('generatedBusinessPlanText', data.business_plan_text);
-                sessionStorage.setItem('generatedBusinessPlanHTML', data.business_plan_html);
-                console.log("PASSO C: HTML salvato in sessionStorage con chiave 'generatedBusinessPlanHTML':", sessionStorage.getItem('generatedBusinessPlanHTML'));
-                window.location.href = '/forms/risultato';
+            console.log("Dati ricevuti dal server:", data);
+
+            // NUOVO FLUSSO: Redirect alla pagina di anteprima
+            if (data.status === 'success' && data.redirect_url) {
+                console.log("Business Plan generato! Redirect a:", data.redirect_url);
+                // Pulisci sessionStorage (non serve più, BP è in sessione server)
+                sessionStorage.removeItem('generatedBusinessPlanText');
+                sessionStorage.removeItem('generatedBusinessPlanHTML');
+                // Redirect alla pagina di anteprima
+                window.location.href = data.redirect_url;
             } else {
+                // Errore nella generazione
                 alert('Errore nella generazione del business plan: ' + (data.message || 'Risposta non valida dal server.'));
+                const submitButton = document.getElementById('nextButtonForm7');
                 if(submitButton) submitButton.disabled = false;
             }
         })
