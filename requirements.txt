@@ -18,5 +18,5 @@ python-docx==1.1.2
 beautifulsoup4==4.13.4
 python-dotenv==1.1.0
 
-# Payments (aggiungeremo dopo)
-# stripe==7.0.0
+# Payments
+stripe==11.1.1

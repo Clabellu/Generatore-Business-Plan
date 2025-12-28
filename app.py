@@ -10,6 +10,7 @@ import io
 import re
 from bs4 import BeautifulSoup
 import html
+import stripe
 
 # Import database e auth
 from database import init_database, create_tables, db
@@ -45,12 +46,27 @@ try:
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
         raise ValueError("La variabile d'ambiente ANTHROPIC_API_KEY non è stata impostata.")
-    
+
     anthropic_client = Anthropic(api_key=api_key) # Rinominato per chiarezza
     print("Client Anthropic inizializzato con successo.")
 except Exception as e:
     print(f"Errore fatale durante l'inizializzazione del client Anthropic: {e}")
     anthropic_client = None
+
+# Inizializzazione Stripe
+try:
+    stripe_secret_key = os.getenv("STRIPE_SECRET_KEY")
+    stripe_public_key = os.getenv("STRIPE_PUBLIC_KEY")
+    stripe_webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    if stripe_secret_key:
+        stripe.api_key = stripe_secret_key
+        print("Stripe inizializzato con successo.")
+    else:
+        print("AVVISO: STRIPE_SECRET_KEY non impostata. I pagamenti non funzioneranno.")
+except Exception as e:
+    print(f"Errore durante l'inizializzazione di Stripe: {e}")
+    stripe_secret_key = None
 
 
 
@@ -986,7 +1002,7 @@ def buy_credits():
                              crediti_brevi=crediti_brevi,
                              crediti_completi=crediti_completi)
 
-    # POST - Processa l'acquisto
+    # POST - Processa l'acquisto tramite Stripe Checkout
     pacchetto_id = request.form.get('pacchetto_id')
 
     if not pacchetto_id:
@@ -1000,37 +1016,159 @@ def buy_credits():
         flash('Pacchetto non trovato', 'error')
         return redirect(url_for('buy_credits'))
 
-    # IMPORTANTE: Per ora saltiamo Stripe e aggiungiamo crediti direttamente
-    # In STEP 4 implementeremo Stripe per pagamenti reali
+    # Verifica che Stripe sia configurato
+    if not stripe.api_key:
+        flash('Pagamenti non disponibili. Contatta l\'amministratore.', 'error')
+        return redirect(url_for('buy_credits'))
+
     try:
-        # Crea ordine (stato: completato direttamente per test)
+        # Crea ordine in pending (verrà completato dal webhook)
         ordine = Order(
             user_id=current_user.id,
             pacchetto_id=pacchetto_id,
             tipo_credito=pacchetto['tipo'],
             quantita=pacchetto['quantita'],
             prezzo=pacchetto['prezzo'],
-            stato='completato',  # Per ora sempre completato
-            metodo_pagamento='test'  # Segnaposto per test
+            stato='pending',
+            metodo_pagamento='stripe'
         )
         db.session.add(ordine)
         db.session.commit()
 
-        # Aggiungi i crediti all'utente
-        aggiungi_crediti(
-            user_id=current_user.id,
-            tipo=pacchetto['tipo'],
-            quantita=pacchetto['quantita'],
-            order_id=ordine.id
+        # Crea Stripe Checkout Session
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'eur',
+                    'product_data': {
+                        'name': pacchetto['nome'],
+                        'description': f"{pacchetto['quantita']} Business Plan {pacchetto['tipo'].capitalize()}",
+                    },
+                    'unit_amount': int(pacchetto['prezzo'] * 100),  # Stripe usa centesimi
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=url_for('payment_success', order_id=ordine.id, _external=True),
+            cancel_url=url_for('payment_cancel', order_id=ordine.id, _external=True),
+            client_reference_id=str(ordine.id),  # Per collegare il pagamento all'ordine
+            customer_email=current_user.email,
         )
 
-        flash(f"✅ Acquisto completato! Aggiunti {pacchetto['quantita']} crediti '{pacchetto['tipo']}'", 'success')
-        return redirect(url_for('dashboard'))
+        # Salva stripe session ID nell'ordine
+        ordine.stripe_payment_id = checkout_session.id
+        db.session.commit()
 
+        # Reindirizza a Stripe Checkout
+        return redirect(checkout_session.url, code=303)
+
+    except stripe.error.StripeError as e:
+        db.session.rollback()
+        flash(f'Errore Stripe: {str(e)}', 'error')
+        return redirect(url_for('buy_credits'))
     except Exception as e:
         db.session.rollback()
         flash(f'Errore durante l\'acquisto: {str(e)}', 'error')
         return redirect(url_for('buy_credits'))
+
+
+@app.route('/payment-success')
+@login_required
+def payment_success():
+    """
+    Pagina mostrata dopo un pagamento Stripe completato con successo
+    """
+    order_id = request.args.get('order_id')
+
+    if order_id:
+        ordine = Order.query.get(order_id)
+        if ordine and ordine.user_id == current_user.id:
+            # Verifica se l'ordine è stato completato
+            if ordine.stato == 'completato':
+                crediti_tipo = ordine.tipo_credito
+                crediti_qty = ordine.quantita
+                return render_template('payment_success.html',
+                                     ordine=ordine,
+                                     crediti_tipo=crediti_tipo,
+                                     crediti_qty=crediti_qty)
+
+    # Se non troviamo l'ordine o non è completato, mostra messaggio generico
+    return render_template('payment_success.html', ordine=None)
+
+
+@app.route('/payment-cancel')
+@login_required
+def payment_cancel():
+    """
+    Pagina mostrata quando l'utente annulla il pagamento Stripe
+    """
+    order_id = request.args.get('order_id')
+
+    if order_id:
+        # Segna l'ordine come fallito
+        ordine = Order.query.get(order_id)
+        if ordine and ordine.user_id == current_user.id and ordine.stato == 'pending':
+            ordine.stato = 'failed'
+            db.session.commit()
+
+    flash('Pagamento annullato. Puoi riprovare quando vuoi.', 'warning')
+    return redirect(url_for('buy_credits'))
+
+
+@app.route('/stripe-webhook', methods=['POST'])
+def stripe_webhook():
+    """
+    Endpoint per gestire i webhook di Stripe
+    Questo viene chiamato da Stripe quando un pagamento è completato
+    """
+    payload = request.data
+    sig_header = request.headers.get('Stripe-Signature')
+
+    try:
+        # Verifica la firma del webhook
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, os.getenv('STRIPE_WEBHOOK_SECRET')
+        )
+    except ValueError:
+        # Payload invalido
+        return jsonify({'error': 'Invalid payload'}), 400
+    except stripe.error.SignatureVerificationError:
+        # Firma invalida
+        return jsonify({'error': 'Invalid signature'}), 400
+
+    # Gestisci l'evento checkout.session.completed
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+
+        # Ottieni l'ID dell'ordine dal client_reference_id
+        order_id = session.get('client_reference_id')
+
+        if order_id:
+            ordine = Order.query.get(int(order_id))
+
+            if ordine and ordine.stato == 'pending':
+                # Aggiorna ordine come completato
+                ordine.stato = 'completato'
+                ordine.stripe_payment_id = session.get('payment_intent')
+                from datetime import datetime
+                ordine.completed_at = datetime.utcnow()
+                db.session.commit()
+
+                # Aggiungi i crediti all'utente
+                try:
+                    aggiungi_crediti(
+                        user_id=ordine.user_id,
+                        tipo=ordine.tipo_credito,
+                        quantita=ordine.quantita,
+                        order_id=ordine.id
+                    )
+                    print(f"✅ Crediti aggiunti per ordine {ordine.id}")
+                except Exception as e:
+                    print(f"❌ Errore aggiunta crediti per ordine {ordine.id}: {e}")
+                    # Non falliamo il webhook, ma logghiamo l'errore
+
+    return jsonify({'status': 'success'}), 200
 
 
 # === NUOVE ROTTE PER I FORM ===
