@@ -68,6 +68,7 @@ class Credit(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)  # 'breve' o 'completo'
     quantita = db.Column(db.Integer, nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=True)  # Ordine associato
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=True)  # Opzionale: scadenza crediti
 
@@ -84,15 +85,21 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    stripe_payment_id = db.Column(db.String(255), unique=True, index=True)
-    prodotto = db.Column(db.String(50), nullable=False)  # 'bp_breve', 'bp_completo', etc.
+    pacchetto_id = db.Column(db.String(50), nullable=False)  # ID pacchetto (es: 'breve_singolo')
+    tipo_credito = db.Column(db.String(20), nullable=False)  # 'breve' o 'completo'
+    quantita = db.Column(db.Integer, nullable=False)  # Numero di crediti acquistati
     prezzo = db.Column(db.Numeric(10, 2), nullable=False)
+    metodo_pagamento = db.Column(db.String(50), default='stripe')  # 'stripe', 'paypal', 'test'
+    stripe_payment_id = db.Column(db.String(255), unique=True, index=True, nullable=True)
     stato = db.Column(db.String(20), default='pending')  # 'pending', 'completed', 'failed'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime, nullable=True)
 
+    # Relazione con crediti generati da questo ordine
+    credits_generated = db.relationship('Credit', backref='order', lazy='dynamic')
+
     def __repr__(self):
-        return f'<Order {self.id} user={self.user_id} prodotto={self.prodotto}>'
+        return f'<Order {self.id} user={self.user_id} pacchetto={self.pacchetto_id}>'
 
 
 class BusinessPlan(db.Model):
