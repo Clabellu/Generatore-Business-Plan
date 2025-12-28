@@ -1,6 +1,10 @@
 .env
 venv/
 
+# Database files
+*.db
+instance/
+
 # Python
 __pycache__/
 *.py[cod]
