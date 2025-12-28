@@ -288,11 +288,19 @@
     <div class="container">
         <!-- Hero Section -->
         <div class="hero">
-            
-            
+            <!-- Auth Links -->
+            <div style="text-align: right; margin-bottom: 20px;">
+                <a href="/login" style="color: var(--text-secondary); margin-right: 20px; text-decoration: none;">
+                    <i class="fas fa-sign-in-alt"></i> Accedi
+                </a>
+                <a href="/register" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none;">
+                    <i class="fas fa-user-plus"></i> Registrati
+                </a>
+            </div>
+
             <h1>Il tuo Business Plan Professionale in Pochi Minuti</h1>
             <p class="hero-subtitle">
-                Trasforma le tue idee in un business plan completo e professionale 
+                Trasforma le tue idee in un business plan completo e professionale
                 grazie all'intelligenza artificiale più avanzata
             </p>
         </div>
@@ -373,7 +381,7 @@
                 Unisciti a migliaia di imprenditori che hanno già trasformato le loro idee in realtà
             </p>
             <button id="startButton">
-                Inizia Ora Gratuitamente
+                Registrati e Inizia Ora
                 <i class="fas fa-arrow-right"></i>
             </button>
         </div>
@@ -391,7 +399,7 @@
                 </div>
                 <div class="trust-item">
                     <i class="fas fa-check-circle"></i>
-                    <span>Nessuna Registrazione</span>
+                    <span>Piani da €29.90</span>
                 </div>
             </div>
         </div>
@@ -400,8 +408,8 @@
     <script>
         // Aggiungi event listener per il bottone start
         document.getElementById('startButton').addEventListener('click', function() {
-            // Naviga al primo form
-            window.location.href = '/forms/form1';
+            // Naviga alla pagina di registrazione
+            window.location.href = '/register';
         });
     </script>
     

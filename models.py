@@ -4,12 +4,14 @@ Modelli database per Business Plan Generator
 from database import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """
     Modello Utente
     Gestisce registrazione, login e profilo utente
+    UserMixin aggiunge metodi richiesti da Flask-Login
     """
     __tablename__ = 'users'
 

@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify, Response, send_file
 from flask_cors import CORS
+from flask_login import login_required, current_user
 from anthropic import Anthropic # Assicurati che sia importato
 from dotenv import load_dotenv
 from weasyprint import HTML, CSS
@@ -10,10 +11,27 @@ import re
 from bs4 import BeautifulSoup
 import html
 
+# Import database e auth
+from database import init_database, create_tables
+from auth import init_auth
+from models import User
+
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+# Configurazione SECRET_KEY per le sessioni
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Inizializza database
+init_database(app)
+
+# Crea tabelle se non esistono
+create_tables(app)
+
+# Inizializza sistema autenticazione
+init_auth(app)
 
 # Inizializzazione del client Anthropic (come l'avevamo prima)
 try:
@@ -914,7 +932,33 @@ def handle_genera_business_plan():
 @app.route('/')
 def index():
     # Assumendo che il tuo file principale si chiami index.html e sia in templates/
-    return render_template('index.html') 
+    return render_template('index.html')
+
+# === ROUTE DASHBOARD (PROTETTA) ===
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    """
+    Dashboard utente - mostra crediti, business plan generati, storico ordini
+    """
+    # Ottieni i crediti dell'utente
+    crediti_brevi = current_user.get_credits('breve')
+    crediti_completi = current_user.get_credits('completo')
+
+    # Ottieni i business plan generati dall'utente
+    from models import BusinessPlan
+    business_plans = BusinessPlan.query.filter_by(user_id=current_user.id).order_by(BusinessPlan.created_at.desc()).all()
+
+    # Ottieni gli ordini
+    from models import Order
+    ordini = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+
+    return render_template('dashboard.html',
+                         crediti_brevi=crediti_brevi,
+                         crediti_completi=crediti_completi,
+                         business_plans=business_plans,
+                         ordini=ordini,
+                         user=current_user)
 
 # === NUOVE ROTTE PER I FORM ===
 # Aggiungi una rotta per ogni pagina del tuo form.
